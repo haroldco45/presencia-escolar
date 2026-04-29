@@ -11,648 +11,246 @@
 <title>PresencIA Escolar · Colombia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-  :root {
-    --verde: #00c896;
-    --verde-oscuro: #00a07a;
-    --azul: #0a2540;
-    --azul-medio: #163d66;
-    --amarillo: #f5c842;
-    --rojo: #e84545;
-    --naranja: #ff7c3e;
-    --blanco: #f7f9fc;
-    --gris: #8892a4;
-    --gris-claro: #e8edf5;
-    --sombra: 0 4px 24px rgba(10,37,64,0.13);
-    --radio: 18px;
-    --radio-sm: 10px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--azul);
-    color: var(--blanco);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ─── SPLASH ─── */
-  #splash {
-    position: fixed; inset: 0; z-index: 999;
-    background: linear-gradient(145deg, #0a2540 0%, #163d66 60%, #00c896 150%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transition: opacity .5s ease;
-  }
-  #splash .logo-big {
-    font-family: 'Fraunces', serif;
-    font-size: clamp(2.6rem, 8vw, 4.2rem);
-    font-weight: 700;
-    letter-spacing: -1px;
-    color: #fff;
-    line-height: 1;
-  }
-  #splash .logo-big span { color: var(--verde); }
-  #splash p { color: rgba(255,255,255,.6); margin-top: 8px; font-size: .95rem; letter-spacing: .5px; }
-  #splash .loader {
-    width: 52px; height: 4px; background: rgba(255,255,255,.15);
-    border-radius: 4px; margin-top: 36px; overflow: hidden;
-  }
-  #splash .loader::after {
-    content: ''; display: block; height: 100%;
-    background: var(--verde); border-radius: 4px;
-    animation: loadbar 1.5s ease forwards;
-  }
-  @keyframes loadbar { from { width: 0 } to { width: 100% } }
-  #splash .brand {
-    position: absolute; bottom: 28px;
-    font-size: .75rem; color: rgba(255,255,255,.35); text-align: center; line-height: 1.6;
-  }
-
-  /* ─── LAYOUT ─── */
-  #app { display: none; flex-direction: column; min-height: 100vh; }
-
-  /* ─── TOP NAV ─── */
-  header {
-    background: rgba(10,37,64,.97);
-    backdrop-filter: blur(12px);
-    padding: 14px 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-    position: sticky; top: 0; z-index: 50;
-  }
-  .logo {
-    font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 700;
-    color: #fff; letter-spacing: -.5px;
-  }
-  .logo span { color: var(--verde); }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .badge-role {
-    background: rgba(0,200,150,.18); color: var(--verde);
-    font-size: .72rem; font-weight: 600; padding: 4px 10px;
-    border-radius: 20px; border: 1px solid rgba(0,200,150,.3);
-    letter-spacing: .4px; text-transform: uppercase;
-  }
-  .avatar {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--verde), var(--azul-medio));
-    display: flex; align-items: center; justify-content: center;
-    font-size: .8rem; font-weight: 700; cursor: pointer;
-  }
-
-  /* ─── BOTTOM NAV ─── */
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(10,37,64,.97); backdrop-filter: blur(14px);
-    border-top: 1px solid rgba(255,255,255,.08);
-    display: flex; z-index: 50;
-  }
-  .nav-btn {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    padding: 10px 4px 14px; gap: 4px; border: none; background: none;
-    color: var(--gris); cursor: pointer; transition: color .2s;
-    font-family: 'DM Sans', sans-serif; font-size: .65rem; font-weight: 500;
-    letter-spacing: .3px;
-  }
-  .nav-btn.active { color: var(--verde); }
-  .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
-  .nav-pip {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--verde); display: none; margin-top: -2px;
-  }
-  .nav-btn.active .nav-pip { display: block; }
-
-  /* ─── MAIN CONTENT ─── */
-  main { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-
-  .screen { display: none; animation: fadeUp .3s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ─── PANTALLA: DASHBOARD ─── */
-  .hero-dash {
-    background: linear-gradient(135deg, var(--azul-medio) 0%, #0d3257 100%);
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid rgba(255,255,255,.07);
-  }
-  .hero-dash h2 {
-    font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600;
-    line-height: 1.3; color: #fff;
-  }
-  .hero-dash p { color: rgba(255,255,255,.55); font-size: .85rem; margin-top: 4px; }
-  .hero-dash .date-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(0,200,150,.15); color: var(--verde);
-    font-size: .75rem; font-weight: 600; padding: 5px 12px;
-    border-radius: 20px; margin-top: 12px;
-  }
-
-  .kpi-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 12px; padding: 18px 16px 0;
-  }
-  .kpi {
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
-    border-radius: var(--radio); padding: 16px; cursor: pointer;
-    transition: background .2s, transform .15s;
-  }
-  .kpi:hover { background: rgba(255,255,255,.09); transform: translateY(-2px); }
-  .kpi .kpi-val {
-    font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;
-    line-height: 1; color: #fff;
-  }
-  .kpi .kpi-val.verde { color: var(--verde); }
-  .kpi .kpi-val.amarillo { color: var(--amarillo); }
-  .kpi .kpi-val.rojo { color: var(--rojo); }
-  .kpi .kpi-val.naranja { color: var(--naranja); }
-  .kpi .kpi-label { font-size: .72rem; color: var(--gris); margin-top: 4px; line-height: 1.3; }
-  .kpi .kpi-trend { font-size: .7rem; margin-top: 8px; font-weight: 600; }
-  .kpi .kpi-trend.up::before { content: '▲ '; color: var(--rojo); }
-  .kpi .kpi-trend.down::before { content: '▼ '; color: var(--verde); }
-
-  .section-title {
-    font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600;
-    padding: 20px 16px 10px; color: #fff; display: flex; align-items: center;
-    justify-content: space-between;
-  }
-  .section-title a {
-    font-family: 'DM Sans', sans-serif; font-size: .75rem;
-    color: var(--verde); text-decoration: none; font-weight: 500;
-  }
-
-  /* Alertas */
-  .alert-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
-  .alert-card {
-    background: rgba(255,255,255,.05); border-radius: var(--radio-sm);
-    border-left: 3px solid var(--rojo); padding: 12px 14px;
-    display: flex; gap: 12px; align-items: flex-start;
-    transition: background .2s;
-  }
-  .alert-card.warning { border-left-color: var(--amarillo); }
-  .alert-card.info    { border-left-color: var(--azul-medio); }
-  .alert-card .icon-circle {
-    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; font-size: 1rem;
-    background: rgba(232,69,69,.15);
-  }
-  .alert-card.warning .icon-circle { background: rgba(245,200,66,.15); }
-  .alert-card.info .icon-circle    { background: rgba(22,61,102,.3); }
-  .alert-card h4 { font-size: .85rem; font-weight: 600; color: #fff; }
-  .alert-card p  { font-size: .76rem; color: var(--gris); margin-top: 2px; line-height: 1.4; }
-  .alert-card .tag {
-    font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 20px;
-    background: rgba(232,69,69,.2); color: var(--rojo); margin-top: 6px; display: inline-block;
-  }
-  .alert-card.warning .tag { background: rgba(245,200,66,.2); color: var(--amarillo); }
-
-  /* Mini bar chart */
-  .mini-chart-wrap { padding: 0 16px 6px; }
-  .mini-chart {
-    background: rgba(255,255,255,.04); border-radius: var(--radio);
-    border: 1px solid rgba(255,255,255,.07); padding: 14px;
-  }
-  .mini-chart h4 { font-size: .8rem; color: var(--gris); margin-bottom: 10px; font-weight: 500; }
-  .bars { display: flex; align-items: flex-end; gap: 6px; height: 60px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .bar {
-    width: 100%; border-radius: 4px 4px 0 0;
-    background: var(--verde); opacity: .7; transition: opacity .2s; cursor: pointer;
-  }
-  .bar:hover { opacity: 1; }
-  .bar.alert { background: var(--rojo); }
-  .bar.warn  { background: var(--amarillo); }
-  .bar-label { font-size: .62rem; color: var(--gris); }
-
-  /* ─── PANTALLA: ASISTENCIA ─── */
-  .asistencia-header {
-    background: linear-gradient(135deg, var(--azul-medio), #0d3257);
-    padding: 20px 16px 16px;
-  }
-  .asistencia-header h2 {
-    font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; color: #fff;
-  }
-  .asistencia-header p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
-
-  .filter-row {
-    display: flex; gap: 8px; padding: 14px 16px 0; overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .filter-row::-webkit-scrollbar { display: none; }
-  .chip {
-    flex-shrink: 0; background: rgba(255,255,255,.07);
-    border: 1px solid rgba(255,255,255,.12); color: var(--gris);
-    font-size: .75rem; font-weight: 500; padding: 6px 14px;
-    border-radius: 20px; cursor: pointer; transition: all .2s; white-space: nowrap;
-  }
-  .chip.active { background: var(--verde); color: var(--azul); border-color: var(--verde); font-weight: 700; }
-
-  .student-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
-  .student-card {
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-    border-radius: var(--radio-sm); padding: 12px 14px;
-    display: flex; align-items: center; gap: 12px;
-    cursor: pointer; transition: background .2s;
-  }
-  .student-card:hover { background: rgba(255,255,255,.09); }
-  .stu-ava {
-    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700;
-  }
-  .stu-info { flex: 1; }
-  .stu-name { font-size: .88rem; font-weight: 600; color: #fff; }
-  .stu-sub  { font-size: .74rem; color: var(--gris); margin-top: 1px; }
-  .stu-badge {
-    font-size: .7rem; font-weight: 700; padding: 3px 10px;
-    border-radius: 20px; white-space: nowrap;
-  }
-  .stu-badge.ok      { background: rgba(0,200,150,.15); color: var(--verde); }
-  .stu-badge.risk    { background: rgba(245,200,66,.15); color: var(--amarillo); }
-  .stu-badge.danger  { background: rgba(232,69,69,.15);  color: var(--rojo); }
-
-  .asist-btn-row {
-    display: flex; gap: 10px; padding: 0 16px 16px;
-  }
-  .btn-primary {
-    flex: 1; background: var(--verde); color: var(--azul);
-    border: none; border-radius: var(--radio-sm);
-    font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 700;
-    padding: 13px; cursor: pointer; transition: background .2s;
-    letter-spacing: .3px;
-  }
-  .btn-primary:hover { background: var(--verde-oscuro); }
-  .btn-outline {
-    flex: 1; background: none; color: var(--verde);
-    border: 1.5px solid var(--verde); border-radius: var(--radio-sm);
-    font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 600;
-    padding: 13px; cursor: pointer; transition: all .2s;
-  }
-
-  /* Registro de asistencia modal */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(10,37,64,.85);
-    backdrop-filter: blur(6px); z-index: 200;
-    display: none; align-items: flex-end;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-sheet {
-    width: 100%; background: #112240;
-    border-radius: 24px 24px 0 0; padding: 0 0 32px;
-    max-height: 90vh; overflow-y: auto;
-    animation: slideUp .3s ease;
-  }
-  @keyframes slideUp { from { transform: translateY(60px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
-  .modal-handle {
-    width: 36px; height: 4px; background: rgba(255,255,255,.15);
-    border-radius: 4px; margin: 12px auto 0;
-  }
-  .modal-title {
-    font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600;
-    padding: 16px 20px 6px; color: #fff;
-  }
-  .modal-sub { font-size: .8rem; color: var(--gris); padding: 0 20px 16px; }
-  .modal-body { padding: 0 20px; }
-
-  .form-group { margin-bottom: 14px; }
-  .form-group label { font-size: .78rem; color: var(--gris); font-weight: 500; display: block; margin-bottom: 6px; }
-  .form-group select,
-  .form-group input,
-  .form-group textarea {
-    width: 100%; background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
-    color: #fff; font-family: 'DM Sans', sans-serif; font-size: .9rem;
-    padding: 11px 14px; outline: none;
-    transition: border-color .2s;
-  }
-  .form-group select:focus,
-  .form-group input:focus,
-  .form-group textarea:focus { border-color: var(--verde); }
-  .form-group select option { background: #0a2540; }
-  .form-group textarea { resize: none; min-height: 80px; }
-
-  .attend-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;
-  }
-  .attend-opt {
-    border: 1.5px solid rgba(255,255,255,.12); border-radius: 10px;
-    padding: 12px 8px; text-align: center; cursor: pointer; transition: all .2s;
-    background: rgba(255,255,255,.04);
-  }
-  .attend-opt .ico { font-size: 1.4rem; display: block; margin-bottom: 4px; }
-  .attend-opt span { font-size: .72rem; color: var(--gris); font-weight: 500; }
-  .attend-opt.selected.p { border-color: var(--verde); background: rgba(0,200,150,.1); }
-  .attend-opt.selected.p span { color: var(--verde); }
-  .attend-opt.selected.t { border-color: var(--amarillo); background: rgba(245,200,66,.1); }
-  .attend-opt.selected.t span { color: var(--amarillo); }
-  .attend-opt.selected.a { border-color: var(--rojo); background: rgba(232,69,69,.1); }
-  .attend-opt.selected.a span { color: var(--rojo); }
-  .attend-opt.selected.e { border-color: var(--naranja); background: rgba(255,124,62,.1); }
-  .attend-opt.selected.e span { color: var(--naranja); }
-  .attend-opt.selected.r { border-color: #9b59b6; background: rgba(155,89,182,.1); }
-  .attend-opt.selected.r span { color: #9b59b6; }
-  .attend-opt.selected.v { border-color: #3498db; background: rgba(52,152,219,.1); }
-  .attend-opt.selected.v span { color: #3498db; }
-
-  /* ─── PANTALLA: RIESGO ─── */
-  .riesgo-hero {
-    background: linear-gradient(135deg, #1a0a2e, var(--azul-medio));
-    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
-  }
-  .riesgo-hero h2 {
-    font-family: 'Fraunces', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
-  }
-  .riesgo-hero p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
-
-  .risk-cards { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-  .risk-card {
-    background: rgba(255,255,255,.05); border-radius: var(--radio);
-    border: 1px solid rgba(255,255,255,.08); padding: 16px;
-    cursor: pointer; transition: background .2s;
-  }
-  .risk-card:hover { background: rgba(255,255,255,.09); }
-  .risk-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .risk-ava {
-    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 700;
-  }
-  .risk-name { font-size: .9rem; font-weight: 700; color: #fff; }
-  .risk-meta { font-size: .74rem; color: var(--gris); margin-top: 2px; }
-  .risk-score-wrap { margin-left: auto; text-align: right; }
-  .risk-score {
-    font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700;
-  }
-  .risk-score.alto { color: var(--rojo); }
-  .risk-score.medio { color: var(--amarillo); }
-  .risk-score.bajo { color: var(--verde); }
-  .risk-score-label { font-size: .68rem; color: var(--gris); text-transform: uppercase; letter-spacing: .4px; }
-
-  .risk-factors { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-  .factor-tag {
-    font-size: .7rem; padding: 3px 10px; border-radius: 20px; font-weight: 600;
-    background: rgba(232,69,69,.12); color: var(--rojo);
-    border: 1px solid rgba(232,69,69,.2);
-  }
-  .factor-tag.eco { background: rgba(245,200,66,.12); color: var(--amarillo); border-color: rgba(245,200,66,.2); }
-  .factor-tag.soc { background: rgba(155,89,182,.12); color: #c39bd3; border-color: rgba(155,89,182,.2); }
-  .factor-tag.aca { background: rgba(52,152,219,.12); color: #85c1e9; border-color: rgba(52,152,219,.2); }
-
-  .risk-bar-wrap { margin-top: 6px; }
-  .risk-bar-bg {
-    height: 6px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden;
-  }
-  .risk-bar-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
-  .risk-bar-fill.alto { background: linear-gradient(90deg, var(--naranja), var(--rojo)); }
-  .risk-bar-fill.medio { background: linear-gradient(90deg, #f0c040, var(--amarillo)); }
-  .risk-bar-fill.bajo  { background: linear-gradient(90deg, #00e0a0, var(--verde)); }
-
-  .accion-btn {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(0,200,150,.1); border: 1px solid rgba(0,200,150,.2);
-    color: var(--verde); border-radius: 8px; padding: 8px 14px;
-    font-size: .8rem; font-weight: 600; cursor: pointer; width: 100%;
-    justify-content: center; margin-top: 10px; transition: background .2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .accion-btn:hover { background: rgba(0,200,150,.2); }
-
-  /* ─── PANTALLA: COMUNICACIONES ─── */
-  .comms-hero {
-    background: linear-gradient(135deg, var(--azul-medio), #0d3257);
-    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
-  }
-  .comms-hero h2 {
-    font-family: 'Fraunces', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
-  }
-  .comms-hero p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
-
-  .quick-actions {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px; padding: 16px;
-  }
-  .qa-card {
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-    border-radius: var(--radio-sm); padding: 16px 12px; text-align: center;
-    cursor: pointer; transition: all .2s;
-  }
-  .qa-card:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
-  .qa-card .qa-ico { font-size: 1.8rem; margin-bottom: 8px; }
-  .qa-card h4 { font-size: .82rem; color: #fff; font-weight: 600; }
-  .qa-card p  { font-size: .71rem; color: var(--gris); margin-top: 3px; line-height: 1.3; }
-
-  .msg-list { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
-  .msg-item {
-    display: flex; gap: 12px; align-items: flex-start;
-    background: rgba(255,255,255,.04); border-radius: var(--radio-sm);
-    border: 1px solid rgba(255,255,255,.07); padding: 12px;
-    cursor: pointer; transition: background .2s;
-  }
-  .msg-item:hover { background: rgba(255,255,255,.08); }
-  .msg-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--verde); flex-shrink: 0; margin-top: 5px;
-  }
-  .msg-dot.read { background: transparent; border: 1.5px solid var(--gris); }
-  .msg-info { flex: 1; }
-  .msg-who  { font-size: .83rem; font-weight: 600; color: #fff; }
-  .msg-text { font-size: .75rem; color: var(--gris); margin-top: 2px; line-height: 1.4; }
-  .msg-time { font-size: .68rem; color: var(--gris); white-space: nowrap; margin-left: 8px; }
-
-  /* ─── PANTALLA: RECURSOS ─── */
-  .rec-hero {
-    background: linear-gradient(135deg, #0d3257, var(--azul-medio));
-    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
-  }
-  .rec-hero h2 {
-    font-family: 'Fraunces', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
-  }
-  .rec-hero p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
-
-  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
-  .rec-card {
-    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-    border-radius: var(--radio); padding: 16px 14px; cursor: pointer; transition: all .2s;
-  }
-  .rec-card:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
-  .rec-ico { font-size: 1.8rem; margin-bottom: 8px; }
-  .rec-card h4 { font-size: .83rem; color: #fff; font-weight: 600; line-height: 1.3; }
-  .rec-card p  { font-size: .71rem; color: var(--gris); margin-top: 4px; line-height: 1.4; }
-  .rec-tag {
-    display: inline-block; font-size: .65rem; font-weight: 700;
-    padding: 2px 8px; border-radius: 20px; margin-top: 8px;
-    background: rgba(0,200,150,.15); color: var(--verde);
-  }
-
-  .hotline-card {
-    margin: 0 16px 16px;
-    background: linear-gradient(135deg, rgba(232,69,69,.15), rgba(232,69,69,.05));
-    border: 1px solid rgba(232,69,69,.25); border-radius: var(--radio);
-    padding: 16px 18px; display: flex; align-items: center; gap: 14px;
-  }
-  .hotline-card .ico { font-size: 2rem; }
-  .hotline-card h4 { font-size: .9rem; font-weight: 700; color: #fff; }
-  .hotline-card p  { font-size: .75rem; color: var(--gris); margin-top: 2px; }
-  .hotline-card .num {
-    font-family: 'Fraunces', serif; font-size: 1.2rem;
-    color: var(--rojo); font-weight: 700; margin-top: 6px;
-  }
-
-  /* ─── TOAST ─── */
-  .toast {
-    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
-    background: var(--verde); color: var(--azul);
-    font-size: .83rem; font-weight: 700; padding: 10px 22px;
-    border-radius: 30px; opacity: 0; z-index: 300; transition: all .3s;
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ─── PROGRESS RING ─── */
-  .ring-wrap { display: flex; justify-content: center; padding: 16px 16px 4px; }
-  .ring-inner { position: relative; width: 120px; height: 120px; }
-  .ring-inner svg { transform: rotate(-90deg); }
-  .ring-val {
-    position: absolute; inset: 0; display: flex;
-    flex-direction: column; align-items: center; justify-content: center;
-    font-family: 'Fraunces', serif;
-  }
-  .ring-val .rv { font-size: 1.8rem; font-weight: 700; color: #fff; }
-  .ring-val .rl { font-size: .64rem; color: var(--gris); margin-top: 2px; }
-  .ring-labels {
-    display: flex; justify-content: center; gap: 18px; padding: 0 16px 14px;
-  }
-  .ring-lbl { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: var(--gris); }
-  .ring-lbl .dot { width: 8px; height: 8px; border-radius: 50%; }
+:root{--verde:#00c896;--verde-oscuro:#00a07a;--azul:#0a2540;--azul-medio:#163d66;--amarillo:#f5c842;--rojo:#e84545;--naranja:#ff7c3e;--blanco:#f7f9fc;--gris:#8892a4;--radio:18px;--radio-sm:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--azul);color:var(--blanco);min-height:100vh;overflow-x:hidden}
+#splash{position:fixed;inset:0;z-index:999;background:linear-gradient(145deg,#0a2540 0%,#163d66 60%,#00c896 150%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+.logo-big{font-family:'Fraunces',serif;font-size:clamp(2.6rem,8vw,4.2rem);font-weight:700;letter-spacing:-1px;color:#fff;line-height:1}
+.logo-big span{color:var(--verde)}
+#splash p{color:rgba(255,255,255,.6);margin-top:8px;font-size:.95rem}
+.loader{width:52px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;margin-top:36px;overflow:hidden}
+.loader::after{content:'';display:block;height:100%;background:var(--verde);border-radius:4px;animation:loadbar 1.5s ease forwards}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.splash-brand{position:absolute;bottom:28px;font-size:.75rem;color:rgba(255,255,255,.35);text-align:center;line-height:1.6}
+#app{display:none;flex-direction:column;min-height:100vh}
+header{background:rgba(10,37,64,.97);backdrop-filter:blur(12px);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:50;gap:8px}
+.logo{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:-.5px;flex-shrink:0}
+.logo span{color:var(--verde)}
+.header-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.badge-role{background:rgba(0,200,150,.18);color:var(--verde);font-size:.65rem;font-weight:600;padding:4px 8px;border-radius:20px;border:1px solid rgba(0,200,150,.3);letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--verde),var(--azul-medio));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;cursor:pointer;flex-shrink:0}
+.hdr-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:6px 9px;font-size:.7rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background .2s;flex-shrink:0}
+.hdr-btn:hover{background:rgba(255,255,255,.15)}
+.hdr-btn.green{background:rgba(0,200,150,.15);border-color:rgba(0,200,150,.3);color:var(--verde)}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,37,64,.97);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:50}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 14px;gap:4px;border:none;background:none;color:var(--gris);cursor:pointer;transition:color .2s;font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:500}
+.nav-btn.active{color:var(--verde)}
+.nav-btn svg{width:22px;height:22px;stroke-width:1.8}
+.nav-pip{width:4px;height:4px;border-radius:50%;background:var(--verde);display:none;margin-top:-2px}
+.nav-btn.active .nav-pip{display:block}
+main{flex:1;overflow-y:auto;padding-bottom:80px}
+.screen{display:none;animation:fadeUp .3s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.hero{background:linear-gradient(135deg,var(--azul-medio) 0%,#0d3257 100%);padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.hero h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:#fff}
+.hero p{font-size:.8rem;color:rgba(255,255,255,.5);margin-top:3px}
+.date-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,150,.15);color:var(--verde);font-size:.75rem;font-weight:600;padding:5px 12px;border-radius:20px;margin-top:10px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0}
+.kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:var(--radio);padding:14px;cursor:pointer;transition:background .2s,transform .15s}
+.kpi:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.kpi-val{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;line-height:1}
+.kpi-val.verde{color:var(--verde)}.kpi-val.amarillo{color:var(--amarillo)}.kpi-val.rojo{color:var(--rojo)}.kpi-val.naranja{color:var(--naranja)}
+.kpi-label{font-size:.72rem;color:var(--gris);margin-top:4px;line-height:1.3}
+.kpi-trend{font-size:.7rem;margin-top:8px;font-weight:600}
+.kpi-trend.up::before{content:'▲ ';color:var(--rojo)}.kpi-trend.down::before{content:'▼ ';color:var(--verde)}
+.section-title{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;padding:18px 16px 10px;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.section-title a,.section-title button{font-family:'DM Sans',sans-serif;font-size:.75rem;color:var(--verde);text-decoration:none;font-weight:500;background:none;border:none;cursor:pointer}
+.alert-list{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.alert-card{background:rgba(255,255,255,.05);border-radius:var(--radio-sm);border-left:3px solid var(--rojo);padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.alert-card.warning{border-left-color:var(--amarillo)}.alert-card.info{border-left-color:var(--azul-medio)}
+.icon-circle{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem;background:rgba(232,69,69,.15)}
+.alert-card.warning .icon-circle{background:rgba(245,200,66,.15)}.alert-card.info .icon-circle{background:rgba(22,61,102,.3)}
+.alert-card h4{font-size:.85rem;font-weight:600;color:#fff}.alert-card p{font-size:.76rem;color:var(--gris);margin-top:2px;line-height:1.4}
+.tag{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(232,69,69,.2);color:var(--rojo);margin-top:6px;display:inline-block}
+.alert-card.warning .tag{background:rgba(245,200,66,.2);color:var(--amarillo)}
+.mini-chart-wrap{padding:0 16px 6px}
+.mini-chart{background:rgba(255,255,255,.04);border-radius:var(--radio);border:1px solid rgba(255,255,255,.07);padding:14px}
+.mini-chart h4{font-size:.8rem;color:var(--gris);margin-bottom:10px;font-weight:500}
+.bars{display:flex;align-items:flex-end;gap:6px;height:60px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--verde);opacity:.7;transition:opacity .2s}
+.bar:hover{opacity:1}.bar.alert{background:var(--rojo)}.bar.warn{background:var(--amarillo)}
+.bar-label{font-size:.62rem;color:var(--gris)}
+.ring-wrap{display:flex;justify-content:center;padding:16px 16px 4px}
+.ring-inner{position:relative;width:120px;height:120px}
+.ring-inner svg{transform:rotate(-90deg)}
+.ring-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Fraunces',serif}
+.ring-val .rv{font-size:1.8rem;font-weight:700;color:#fff}.ring-val .rl{font-size:.64rem;color:var(--gris);margin-top:2px}
+.ring-labels{display:flex;justify-content:center;gap:18px;padding:0 16px 14px}
+.ring-lbl{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--gris)}
+.ring-lbl .dot{width:8px;height:8px;border-radius:50%}
+.filter-row{display:flex;gap:8px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--gris);font-size:.75rem;font-weight:500;padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.chip.active{background:var(--verde);color:var(--azul);border-color:var(--verde);font-weight:700}
+.student-list{padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.student-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radio-sm);padding:11px 12px;display:flex;align-items:center;gap:10px}
+.stu-ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;cursor:pointer}
+.stu-info{flex:1;cursor:pointer}.stu-name{font-size:.85rem;font-weight:600;color:#fff}.stu-sub{font-size:.72rem;color:var(--gris);margin-top:1px}
+.stu-badge{font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;cursor:pointer}
+.stu-badge.ok{background:rgba(0,200,150,.15);color:var(--verde)}.stu-badge.risk{background:rgba(245,200,66,.15);color:var(--amarillo)}.stu-badge.danger{background:rgba(232,69,69,.15);color:var(--rojo)}
+.stu-actions{display:flex;gap:5px;flex-shrink:0;align-items:center}
+.stu-wa{background:rgba(37,211,102,.15);border:1px solid rgba(37,211,102,.3);color:#25d366;border-radius:7px;padding:5px 7px;font-size:.8rem;cursor:pointer;line-height:1}
+.stu-edit{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--gris);border-radius:7px;padding:5px 7px;font-size:.8rem;cursor:pointer;line-height:1}
+.asist-btn-row{display:flex;gap:10px;padding:0 16px 16px}
+.btn-primary{flex:1;background:var(--verde);color:var(--azul);border:none;border-radius:var(--radio-sm);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;padding:13px;cursor:pointer;transition:background .2s}
+.btn-primary:hover{background:var(--verde-oscuro)}
+.btn-outline{flex:1;background:none;color:var(--verde);border:1.5px solid var(--verde);border-radius:var(--radio-sm);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;padding:13px;cursor:pointer;transition:all .2s}
+.risk-cards{padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.risk-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radio);padding:16px}
+.risk-card-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.risk-ava{width:44px;height:44px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700}
+.risk-name{font-size:.9rem;font-weight:700;color:#fff}.risk-meta{font-size:.74rem;color:var(--gris);margin-top:2px}
+.risk-score-wrap{margin-left:auto;text-align:right}
+.risk-score{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700}
+.risk-score.alto{color:var(--rojo)}.risk-score.medio{color:var(--amarillo)}.risk-score.bajo{color:var(--verde)}
+.risk-score-label{font-size:.68rem;color:var(--gris);text-transform:uppercase;letter-spacing:.4px}
+.risk-factors{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.factor-tag{font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:600;background:rgba(232,69,69,.12);color:var(--rojo);border:1px solid rgba(232,69,69,.2)}
+.factor-tag.eco{background:rgba(245,200,66,.12);color:var(--amarillo);border-color:rgba(245,200,66,.2)}
+.factor-tag.soc{background:rgba(155,89,182,.12);color:#c39bd3;border-color:rgba(155,89,182,.2)}
+.factor-tag.aca{background:rgba(52,152,219,.12);color:#85c1e9;border-color:rgba(52,152,219,.2)}
+.risk-bar-bg{height:6px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;margin-bottom:10px}
+.risk-bar-fill{height:100%;border-radius:6px;transition:width .5s ease}
+.risk-bar-fill.alto{background:linear-gradient(90deg,var(--naranja),var(--rojo))}
+.risk-bar-fill.medio{background:linear-gradient(90deg,#f0c040,var(--amarillo))}
+.risk-bar-fill.bajo{background:linear-gradient(90deg,#00e0a0,var(--verde))}
+.accion-btn{display:flex;align-items:center;gap:8px;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.2);color:var(--verde);border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;cursor:pointer;width:100%;justify-content:center;margin-top:4px;transition:background .2s;font-family:'DM Sans',sans-serif}
+.wa-btn-risk{display:flex;align-items:center;gap:8px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.25);color:#25d366;border-radius:8px;padding:8px 14px;font-size:.8rem;font-weight:600;cursor:pointer;width:100%;justify-content:center;margin-top:6px;transition:background .2s;font-family:'DM Sans',sans-serif}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
+.qa-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radio-sm);padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s}
+.qa-card:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.qa-ico{font-size:1.8rem;margin-bottom:8px}
+.qa-card h4{font-size:.82rem;color:#fff;font-weight:600}.qa-card p{font-size:.71rem;color:var(--gris);margin-top:3px;line-height:1.3}
+.msg-list{padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.msg-item{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.04);border-radius:var(--radio-sm);border:1px solid rgba(255,255,255,.07);padding:12px;cursor:pointer;transition:background .2s}
+.msg-item:hover{background:rgba(255,255,255,.08)}
+.msg-dot{width:8px;height:8px;border-radius:50%;background:var(--verde);flex-shrink:0;margin-top:5px}
+.msg-dot.read{background:transparent;border:1.5px solid var(--gris)}
+.msg-info{flex:1}.msg-who{font-size:.83rem;font-weight:600;color:#fff}.msg-text{font-size:.75rem;color:var(--gris);margin-top:2px;line-height:1.4}
+.msg-time{font-size:.68rem;color:var(--gris);white-space:nowrap;margin-left:8px}
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.rec-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radio);padding:16px 14px;cursor:pointer;transition:all .2s}
+.rec-card:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.rec-ico{font-size:1.8rem;margin-bottom:8px}
+.rec-card h4{font-size:.83rem;color:#fff;font-weight:600;line-height:1.3}.rec-card p{font-size:.71rem;color:var(--gris);margin-top:4px;line-height:1.4}
+.rec-tag{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:8px;background:rgba(0,200,150,.15);color:var(--verde)}
+.hotline-card{margin:0 16px 16px;background:linear-gradient(135deg,rgba(232,69,69,.15),rgba(232,69,69,.05));border:1px solid rgba(232,69,69,.25);border-radius:var(--radio);padding:16px 18px;display:flex;align-items:center;gap:14px}
+.hotline-card .ico{font-size:2rem}.hotline-card h4{font-size:.9rem;font-weight:700;color:#fff}.hotline-card p{font-size:.75rem;color:var(--gris);margin-top:2px}
+.hotline-card .num{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--rojo);font-weight:700;margin-top:6px}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.admin-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:var(--radio);padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s}
+.admin-card:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.admin-ico{font-size:2rem;margin-bottom:10px}
+.admin-card h4{font-size:.9rem;font-weight:700;color:#fff}.admin-card p{font-size:.72rem;color:var(--gris);margin-top:4px;line-height:1.4}
+.admin-card.green-card{border-color:rgba(0,200,150,.3);background:rgba(0,200,150,.06)}
+.admin-card.blue-card{border-color:rgba(52,152,219,.3);background:rgba(52,152,219,.06)}
+.admin-card.purple-card{border-color:rgba(155,89,182,.3);background:rgba(155,89,182,.06)}
+.admin-card.yellow-card{border-color:rgba(245,200,66,.3);background:rgba(245,200,66,.06)}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,37,64,.85);backdrop-filter:blur(6px);z-index:200;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal-sheet{width:100%;background:#112240;border-radius:24px 24px 0 0;padding:0 0 32px;max-height:92vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-handle{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;margin:12px auto 0}
+.modal-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;padding:16px 20px 4px;color:#fff}
+.modal-sub{font-size:.8rem;color:var(--gris);padding:0 20px 14px}
+.modal-body{padding:0 20px}
+.form-group{margin-bottom:14px}
+.form-group label{font-size:.78rem;color:var(--gris);font-weight:500;display:block;margin-bottom:6px}
+.form-group select,.form-group input,.form-group textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;padding:11px 14px;outline:none;transition:border-color .2s}
+.form-group select:focus,.form-group input:focus,.form-group textarea:focus{border-color:var(--verde)}
+.form-group select option{background:#0a2540}
+.form-group textarea{resize:none;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inf-grid{display:flex;flex-direction:column;gap:12px;padding:14px 16px}
+.inf-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:var(--radio);padding:16px;display:flex;gap:14px;align-items:center}
+.inf-ico{font-size:2rem;flex-shrink:0}
+.inf-info{flex:1}.inf-info h4{font-size:.9rem;font-weight:700;color:#fff}.inf-info p{font-size:.75rem;color:var(--gris);margin-top:3px;line-height:1.4}
+.inf-btns{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.inf-btn{font-size:.72rem;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:background .2s;white-space:nowrap}
+.inf-btn.wa{background:rgba(37,211,102,.2);color:#25d366}.inf-btn.wa:hover{background:rgba(37,211,102,.35)}
+.inf-btn.dl{background:rgba(255,255,255,.1);color:#fff}.inf-btn.dl:hover{background:rgba(255,255,255,.18)}
+.wa-preview{background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.2);border-radius:12px;padding:14px;margin-bottom:14px;font-size:.82rem;color:rgba(255,255,255,.8);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.wa-recipients{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:200px;overflow-y:auto}
+.wa-rec-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 12px;cursor:pointer;transition:background .2s}
+.wa-rec-item:hover{background:rgba(255,255,255,.09)}
+.wa-rec-ava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0}
+.wa-rec-name{flex:1;font-size:.85rem;font-weight:600;color:#fff}.wa-rec-role{font-size:.71rem;color:var(--gris)}
+.wa-send-btn{width:100%;background:#25d366;color:#fff;border:none;border-radius:var(--radio-sm);font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;padding:13px;cursor:pointer;transition:background .2s}
+.wa-send-btn:hover{background:#1ebe5d}
+.backup-info{background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.2);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.6}
+.backup-info strong{color:#85c1e9}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--verde);color:var(--azul);font-size:.83rem;font-weight:700;padding:10px 22px;border-radius:30px;opacity:0;z-index:300;transition:all .3s;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.red{background:var(--rojo);color:#fff}.toast.blue{background:#3498db;color:#fff}
 </style>
 </head>
 <body>
 
-<!-- SPLASH -->
 <div id="splash">
   <div class="logo-big">Presenc<span>IA</span></div>
   <p>Escolar · Colombia</p>
   <div class="loader"></div>
-  <div class="brand">
-    Desarrollada por Vibras Positivas HM<br>Derechos de Autor Reservados · 2026
-  </div>
+  <div class="splash-brand">Desarrollada por Vibras Positivas HM<br>Derechos de Autor Reservados · 2026</div>
 </div>
 
-<!-- APP -->
 <div id="app">
-  <!-- HEADER -->
   <header>
     <div class="logo">Presenc<span>IA</span></div>
     <div class="header-right">
+      <button class="hdr-btn green" onclick="goTo('informes')">📊 Informes</button>
+      <button class="hdr-btn" onclick="goTo('admin')">⚙️ Admin</button>
       <span class="badge-role" id="roleLabel">Docente</span>
       <div class="avatar" id="userAvatar" onclick="toggleRole()">MD</div>
     </div>
   </header>
 
-  <!-- MAIN -->
   <main>
-
-    <!-- ── DASHBOARD ── -->
+    <!-- DASHBOARD -->
     <section id="screen-home" class="screen active">
-      <div class="hero-dash">
+      <div class="hero">
         <h2 id="welcomeMsg">Buenos días, Docente</h2>
-        <p id="courseInfo">Colegio San José · Grado 8° — Grupo A</p>
-        <div class="date-chip">
-          📅 <span id="currentDate"></span>
-        </div>
+        <p id="courseInfo" style="cursor:pointer" onclick="openModal('editColegio')">
+          <span id="colegioNombre">Colegio San José</span> · <span id="gradoNombre">Grado 8° — Grupo A</span> ✏️
+        </p>
+        <div class="date-chip">📅 <span id="currentDate"></span></div>
       </div>
-
-      <!-- KPIs -->
       <div class="kpi-grid">
-        <div class="kpi" onclick="goTo('asistencia')">
-          <div class="kpi-val verde">87%</div>
-          <div class="kpi-label">Asistencia hoy</div>
-          <div class="kpi-trend down">3 ausentismos</div>
-        </div>
-        <div class="kpi" onclick="goTo('riesgo')">
-          <div class="kpi-val rojo">5</div>
-          <div class="kpi-label">Estudiantes en riesgo alto</div>
-          <div class="kpi-trend up">+2 esta semana</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-val amarillo">12</div>
-          <div class="kpi-label">Inasistencias injustificadas (mes)</div>
-          <div class="kpi-trend up">vs mes anterior</div>
-        </div>
-        <div class="kpi" onclick="goTo('comms')">
-          <div class="kpi-val naranja">3</div>
-          <div class="kpi-label">Mensajes sin respuesta</div>
-          <div class="kpi-trend">a padres de familia</div>
-        </div>
+        <div class="kpi" onclick="goTo('asistencia')"><div class="kpi-val verde">87%</div><div class="kpi-label">Asistencia hoy</div><div class="kpi-trend down">3 ausentismos</div></div>
+        <div class="kpi" onclick="goTo('riesgo')"><div class="kpi-val rojo">5</div><div class="kpi-label">Estudiantes en riesgo alto</div><div class="kpi-trend up">+2 esta semana</div></div>
+        <div class="kpi"><div class="kpi-val amarillo">12</div><div class="kpi-label">Inasistencias injustificadas (mes)</div><div class="kpi-trend up">vs mes anterior</div></div>
+        <div class="kpi" onclick="goTo('comms')"><div class="kpi-val naranja">3</div><div class="kpi-label">Mensajes sin respuesta</div><div class="kpi-trend">a padres de familia</div></div>
       </div>
-
-      <!-- Gráfica asistencia semanal -->
       <div class="section-title">Asistencia — semana actual</div>
       <div class="mini-chart-wrap">
         <div class="mini-chart">
           <h4>% presencia por día (grado 8A)</h4>
           <div class="bars">
-            <div class="bar-col"><div class="bar" style="height:88%" title="Lun 88%"></div><span class="bar-label">Lun</span></div>
-            <div class="bar-col"><div class="bar warn" style="height:76%" title="Mar 76%"></div><span class="bar-label">Mar</span></div>
-            <div class="bar-col"><div class="bar" style="height:91%" title="Mié 91%"></div><span class="bar-label">Mié</span></div>
-            <div class="bar-col"><div class="bar alert" style="height:68%" title="Jue 68%"></div><span class="bar-label">Jue</span></div>
-            <div class="bar-col"><div class="bar" style="height:87%" title="Vie 87%"></div><span class="bar-label">Vie</span></div>
+            <div class="bar-col"><div class="bar" style="height:88%"></div><span class="bar-label">Lun</span></div>
+            <div class="bar-col"><div class="bar warn" style="height:76%"></div><span class="bar-label">Mar</span></div>
+            <div class="bar-col"><div class="bar" style="height:91%"></div><span class="bar-label">Mié</span></div>
+            <div class="bar-col"><div class="bar alert" style="height:68%"></div><span class="bar-label">Jue</span></div>
+            <div class="bar-col"><div class="bar" style="height:87%"></div><span class="bar-label">Vie</span></div>
           </div>
         </div>
       </div>
-
-      <!-- Alertas -->
       <div class="section-title">Alertas activas <a onclick="goTo('riesgo')">Ver todas</a></div>
       <div class="alert-list">
-        <div class="alert-card">
-          <div class="icon-circle">🚨</div>
-          <div>
-            <h4>Tomás Vargas · 8A</h4>
-            <p>5 inasistencias consecutivas sin justificación. Posible inicio de proceso de deserción.</p>
-            <span class="tag">Riesgo crítico</span>
-          </div>
-        </div>
-        <div class="alert-card warning">
-          <div class="icon-circle">⚠️</div>
-          <div>
-            <h4>Valentina Meza · 8A</h4>
-            <p>Reporta dificultades económicas en el hogar. Padres no han respondido en 7 días.</p>
-            <span class="tag">Seguimiento</span>
-          </div>
-        </div>
-        <div class="alert-card warning">
-          <div class="icon-circle">📞</div>
-          <div>
-            <h4>Comunicación pendiente</h4>
-            <p>3 padres de familia requieren contacto urgente por inasistencias reiteradas.</p>
-            <span class="tag">Acción requerida</span>
-          </div>
-        </div>
+        <div class="alert-card"><div class="icon-circle">🚨</div><div><h4>Tomás Vargas · 8A</h4><p>5 inasistencias consecutivas. Posible inicio de deserción.</p><span class="tag">Riesgo crítico</span></div></div>
+        <div class="alert-card warning"><div class="icon-circle">⚠️</div><div><h4>Valentina Meza · 8A</h4><p>Dificultades económicas. Padres sin responder 7 días.</p><span class="tag">Seguimiento</span></div></div>
       </div>
-
-      <!-- Asistencia global circular -->
       <div class="section-title">Tasa mensual del grado</div>
       <div class="ring-wrap">
         <div class="ring-inner">
           <svg width="120" height="120" viewBox="0 0 120 120">
             <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--verde)" stroke-width="10"
-              stroke-dasharray="314" stroke-dashoffset="47" stroke-linecap="round"/>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--amarillo)" stroke-width="10"
-              stroke-dasharray="314" stroke-dashoffset="267" stroke-linecap="round"
-              style="transform-origin:center;transform:rotate(122deg)"/>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--rojo)" stroke-width="10"
-              stroke-dasharray="314" stroke-dashoffset="288" stroke-linecap="round"
-              style="transform-origin:center;transform:rotate(152deg)"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--verde)" stroke-width="10" stroke-dasharray="314" stroke-dashoffset="47" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--amarillo)" stroke-width="10" stroke-dasharray="314" stroke-dashoffset="267" stroke-linecap="round" style="transform-origin:center;transform:rotate(122deg)"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--rojo)" stroke-width="10" stroke-dasharray="314" stroke-dashoffset="288" stroke-linecap="round" style="transform-origin:center;transform:rotate(152deg)"/>
           </svg>
-          <div class="ring-val">
-            <span class="rv">85%</span>
-            <span class="rl">asistencia</span>
-          </div>
+          <div class="ring-val"><span class="rv">85%</span><span class="rl">asistencia</span></div>
         </div>
       </div>
       <div class="ring-labels">
@@ -662,491 +260,429 @@
       </div>
     </section>
 
-    <!-- ── ASISTENCIA ── -->
+    <!-- ASISTENCIA -->
     <section id="screen-asistencia" class="screen">
-      <div class="asistencia-header">
-        <h2>Registro de Asistencia</h2>
-        <p id="asistDate">Cargando...</p>
+      <div class="hero"><h2>Registro de Asistencia</h2><p id="asistDate">Cargando...</p></div>
+      <div class="filter-row" id="gradoChips">
+        <span class="chip active" onclick="filterGrado(this,'8A')">Grado 8A</span>
+        <span class="chip" onclick="filterGrado(this,'9B')">9B</span>
+        <span class="chip" onclick="filterGrado(this,'10C')">10C</span>
+        <span class="chip" onclick="filterGrado(this,'11A')">11A</span>
       </div>
-
-      <div class="filter-row">
-        <span class="chip active">Grado 8A</span>
-        <span class="chip">9B</span>
-        <span class="chip">10C</span>
-        <span class="chip">11A</span>
-        <span class="chip">11B</span>
-      </div>
-
-      <div class="student-list" id="studentList">
-        <!-- Generado por JS -->
-      </div>
-
+      <div class="student-list" id="studentList"></div>
       <div class="asist-btn-row">
         <button class="btn-primary" onclick="saveAttendance()">💾 Guardar registro</button>
-        <button class="btn-outline" onclick="openModal()">+ Novedad</button>
+        <button class="btn-outline" onclick="openModal('novedad')">+ Novedad</button>
       </div>
     </section>
 
-    <!-- ── RIESGO ── -->
+    <!-- RIESGO -->
     <section id="screen-riesgo" class="screen">
-      <div class="riesgo-hero">
-        <h2>Mapa de Riesgo</h2>
-        <p>Detección temprana · IA predictiva</p>
+      <div class="hero" style="background:linear-gradient(135deg,#1a0a2e,var(--azul-medio))">
+        <h2>Mapa de Riesgo</h2><p>Detección temprana · IA predictiva</p>
       </div>
-
       <div class="filter-row">
-        <span class="chip active">Todos</span>
-        <span class="chip">🔴 Alto</span>
-        <span class="chip">🟡 Medio</span>
-        <span class="chip">🟢 Bajo</span>
+        <span class="chip active">Todos</span><span class="chip">🔴 Alto</span><span class="chip">🟡 Medio</span><span class="chip">🟢 Bajo</span>
       </div>
-
-      <div class="risk-cards" id="riskCards">
-        <!-- generado por JS -->
-      </div>
+      <div class="risk-cards" id="riskCards"></div>
     </section>
 
-    <!-- ── COMUNICACIONES ── -->
+    <!-- COMUNICACIONES -->
     <section id="screen-comms" class="screen">
-      <div class="comms-hero">
-        <h2>Comunicaciones</h2>
-        <p>Padres · Directivos · Orientadores</p>
-      </div>
-
+      <div class="hero"><h2>Comunicaciones</h2><p>Padres · Directivos · Orientadores</p></div>
       <div class="quick-actions">
-        <div class="qa-card" onclick="showToast('📲 Abriendo WhatsApp...')">
-          <div class="qa-ico">📲</div>
-          <h4>WhatsApp masivo</h4>
-          <p>Notificar ausencias a padres</p>
-        </div>
-        <div class="qa-card" onclick="openModal()">
-          <div class="qa-ico">📝</div>
-          <h4>Nueva citación</h4>
-          <p>Citar padre de familia</p>
-        </div>
-        <div class="qa-card" onclick="showToast('📋 Informe generado')">
-          <div class="qa-ico">📋</div>
-          <h4>Informe mensual</h4>
-          <p>Generar y compartir PDF</p>
-        </div>
-        <div class="qa-card" onclick="showToast('🏫 Reporte enviado a coordinación')">
-          <div class="qa-ico">🏫</div>
-          <h4>Escalar caso</h4>
-          <p>Enviar a orientación</p>
-        </div>
+        <div class="qa-card" onclick="openModal('waGrupal')"><div class="qa-ico">📲</div><h4>WhatsApp masivo</h4><p>Notificar ausencias a padres</p></div>
+        <div class="qa-card" onclick="openModal('novedad')"><div class="qa-ico">📝</div><h4>Nueva citación</h4><p>Citar padre de familia</p></div>
+        <div class="qa-card" onclick="goTo('informes')"><div class="qa-ico">📋</div><h4>Informes</h4><p>Generar y compartir por WhatsApp</p></div>
+        <div class="qa-card" onclick="showToast('🏫 Reporte enviado a coordinación')"><div class="qa-ico">🏫</div><h4>Escalar caso</h4><p>Enviar a orientación</p></div>
       </div>
-
       <div class="section-title">Mensajes recientes</div>
       <div class="msg-list">
-        <div class="msg-item">
-          <div class="msg-dot"></div>
-          <div class="msg-info">
-            <div class="msg-who">Madre de Tomás Vargas</div>
-            <div class="msg-text">El niño estuvo enfermo esta semana, mañana llevo la excusa médica...</div>
-          </div>
-          <div class="msg-time">Hace 2h</div>
-        </div>
-        <div class="msg-item">
-          <div class="msg-dot"></div>
-          <div class="msg-info">
-            <div class="msg-who">Coordinadora académica</div>
-            <div class="msg-text">Por favor reportar los casos críticos del 8A antes del viernes...</div>
-          </div>
-          <div class="msg-time">Hace 5h</div>
-        </div>
-        <div class="msg-item">
-          <div class="msg-dot read"></div>
-          <div class="msg-info">
-            <div class="msg-who">Psicoorientadora</div>
-            <div class="msg-text">Valentina Meza tiene cita programada para el jueves a las 10am.</div>
-          </div>
-          <div class="msg-time">Ayer</div>
-        </div>
-        <div class="msg-item">
-          <div class="msg-dot read"></div>
-          <div class="msg-info">
-            <div class="msg-who">Padre de Juan Pérez</div>
-            <div class="msg-text">Muchas gracias por el seguimiento, ya estamos trabajando en casa...</div>
-          </div>
-          <div class="msg-time">Lun</div>
-        </div>
-        <div class="msg-item">
-          <div class="msg-dot"></div>
-          <div class="msg-info">
-            <div class="msg-who">ICBF — Alerta sistémica</div>
-            <div class="msg-text">Recuerda: 3 o más inasistencias consecutivas sin justificación activa protocolo...</div>
-          </div>
-          <div class="msg-time">Dom</div>
-        </div>
+        <div class="msg-item" onclick="openModal('waDirecto')"><div class="msg-dot"></div><div class="msg-info"><div class="msg-who">Madre de Tomás Vargas</div><div class="msg-text">El niño estuvo enfermo, mañana llevo la excusa médica...</div></div><div class="msg-time">Hace 2h</div></div>
+        <div class="msg-item" onclick="openModal('waDirecto')"><div class="msg-dot"></div><div class="msg-info"><div class="msg-who">Coordinadora académica</div><div class="msg-text">Por favor reportar los casos críticos del 8A antes del viernes...</div></div><div class="msg-time">Hace 5h</div></div>
+        <div class="msg-item"><div class="msg-dot read"></div><div class="msg-info"><div class="msg-who">Psicoorientadora</div><div class="msg-text">Valentina Meza tiene cita el jueves a las 10am.</div></div><div class="msg-time">Ayer</div></div>
+        <div class="msg-item"><div class="msg-dot read"></div><div class="msg-info"><div class="msg-who">Padre de Juan Pérez</div><div class="msg-text">Gracias por el seguimiento, ya estamos trabajando en casa.</div></div><div class="msg-time">Lun</div></div>
       </div>
     </section>
 
-    <!-- ── RECURSOS ── -->
+    <!-- RECURSOS -->
     <section id="screen-recursos" class="screen">
-      <div class="rec-hero">
-        <h2>Recursos y Apoyo</h2>
-        <p>Guías · Protocolos · Líneas de ayuda</p>
-      </div>
-
-      <!-- Línea emergencia -->
-      <div class="hotline-card">
-        <div class="ico">🆘</div>
-        <div>
-          <h4>Línea 106 — Bienestar familiar</h4>
-          <p>ICBF · Atención a niños en vulnerabilidad</p>
-          <div class="num">📞 106</div>
-        </div>
-      </div>
-
+      <div class="hero"><h2>Recursos y Apoyo</h2><p>Guías · Protocolos · Líneas de ayuda</p></div>
+      <div class="hotline-card"><div class="ico">🆘</div><div><h4>Línea 106 — Bienestar familiar</h4><p>ICBF · Atención a niños en vulnerabilidad</p><div class="num">📞 106</div></div></div>
       <div class="rec-grid">
-        <div class="rec-card" onclick="showToast('📄 Abriendo protocolo...')">
-          <div class="rec-ico">📄</div>
-          <h4>Protocolo de inasistencia</h4>
-          <p>Guía paso a paso según MEN</p>
-          <span class="rec-tag">MEN 2024</span>
-        </div>
-        <div class="rec-card" onclick="showToast('📊 Cargando ruta...')">
-          <div class="rec-ico">🗺️</div>
-          <h4>Ruta de atención integral</h4>
-          <p>Deserción y vulnerabilidad</p>
-          <span class="rec-tag">RIA</span>
-        </div>
-        <div class="rec-card" onclick="showToast('🎓 Abriendo módulo...')">
-          <div class="rec-ico">🎓</div>
-          <h4>Formación docente</h4>
-          <p>Estrategias de retención escolar</p>
-          <span class="rec-tag">Gratis</span>
-        </div>
-        <div class="rec-card" onclick="showToast('🤝 Conectando...')">
-          <div class="rec-ico">🤝</div>
-          <h4>Apoyo psicosocial</h4>
-          <p>Orientación para familias en crisis</p>
-          <span class="rec-tag">Disponible</span>
-        </div>
-        <div class="rec-card" onclick="showToast('📱 Abriendo...')">
-          <div class="rec-ico">📱</div>
-          <h4>WhatsApp ICBF</h4>
-          <p>Reporte ágil de casos críticos</p>
-          <span class="rec-tag">Directo</span>
-        </div>
-        <div class="rec-card" onclick="showToast('📊 Descargando...')">
-          <div class="rec-ico">📊</div>
-          <h4>Plantilla de informe</h4>
-          <p>Para comités de permanencia</p>
-          <span class="rec-tag">Word · PDF</span>
-        </div>
+        <div class="rec-card" onclick="showToast('📄 Abriendo protocolo MEN...')"><div class="rec-ico">📄</div><h4>Protocolo de inasistencia</h4><p>Guía paso a paso según MEN</p><span class="rec-tag">MEN 2024</span></div>
+        <div class="rec-card" onclick="showToast('🗺️ Cargando ruta...')"><div class="rec-ico">🗺️</div><h4>Ruta de atención integral</h4><p>Deserción y vulnerabilidad</p><span class="rec-tag">RIA</span></div>
+        <div class="rec-card" onclick="showToast('🎓 Abriendo módulo...')"><div class="rec-ico">🎓</div><h4>Formación docente</h4><p>Estrategias de retención escolar</p><span class="rec-tag">Gratis</span></div>
+        <div class="rec-card" onclick="showToast('🤝 Conectando...')"><div class="rec-ico">🤝</div><h4>Apoyo psicosocial</h4><p>Orientación para familias en crisis</p><span class="rec-tag">Disponible</span></div>
       </div>
-
-      <div class="section-title">Marco legal Colombia</div>
-      <div class="alert-list" style="padding-bottom:24px">
-        <div class="alert-card info">
-          <div class="icon-circle">⚖️</div>
-          <div>
-            <h4>Ley 115 de 1994</h4>
-            <p>Ley General de Educación — derecho a la permanencia y gratuidad educativa.</p>
-          </div>
-        </div>
-        <div class="alert-card info">
-          <div class="icon-circle">🛡️</div>
-          <div>
-            <h4>Ley 1098 de 2006</h4>
-            <p>Código de Infancia y Adolescencia — obligación del Estado, familia y sociedad de garantizar la educación.</p>
-          </div>
-        </div>
-        <div class="alert-card info">
-          <div class="icon-circle">👁️</div>
-          <div>
-            <h4>Ley 1581 de 2012 — Habeas Data</h4>
-            <p>Los datos de estudiantes y familias son confidenciales. Solo personal autorizado puede visualizar información sensible.</p>
-          </div>
-        </div>
+      <div class="section-title">Marco legal</div>
+      <div class="alert-list" style="padding-bottom:20px">
+        <div class="alert-card info"><div class="icon-circle">⚖️</div><div><h4>Ley 115 de 1994</h4><p>Ley General de Educación — derecho a la permanencia y gratuidad educativa.</p></div></div>
+        <div class="alert-card info"><div class="icon-circle">🛡️</div><div><h4>Ley 1098 de 2006</h4><p>Código de Infancia y Adolescencia — obligación del Estado y la familia.</p></div></div>
+        <div class="alert-card info"><div class="icon-circle">👁️</div><div><h4>Ley 1581/2012 — Habeas Data</h4><p>Datos de estudiantes y familias son confidenciales. Solo personal autorizado.</p></div></div>
       </div>
     </section>
 
+    <!-- ADMINISTRACIÓN -->
+    <section id="screen-admin" class="screen">
+      <div class="hero" style="background:linear-gradient(135deg,#0d3257,#163d66)">
+        <h2>⚙️ Administración</h2><p>Configuración · Datos · Respaldos</p>
+      </div>
+      <div class="admin-grid">
+        <div class="admin-card green-card" onclick="openModal('editColegio')"><div class="admin-ico">🏫</div><h4>Editar colegio</h4><p>Nombre, sede, municipio, rector</p></div>
+        <div class="admin-card blue-card" onclick="openModal('addProfesor')"><div class="admin-ico">👨‍🏫</div><h4>Ingresar docente</h4><p>Registrar nuevo profesor</p></div>
+        <div class="admin-card purple-card" onclick="openModal('addAlumno')"><div class="admin-ico">🎒</div><h4>Ingresar alumno</h4><p>Registrar nuevo estudiante</p></div>
+        <div class="admin-card yellow-card" onclick="openModal('listaAlumnos')"><div class="admin-ico">📋</div><h4>Ver / editar alumnos</h4><p>Lista completa con edición</p></div>
+        <div class="admin-card" style="border-color:rgba(0,200,150,.3);background:rgba(0,200,150,.06)" onclick="openModal('backup')"><div class="admin-ico">☁️</div><h4>Backup / Exportar</h4><p>Copiar datos JSON o CSV</p></div>
+        <div class="admin-card" style="border-color:rgba(255,124,62,.3);background:rgba(255,124,62,.06)" onclick="openModal('restore')"><div class="admin-ico">🔄</div><h4>Restaurar datos</h4><p>Importar backup anterior</p></div>
+      </div>
+    </section>
+
+    <!-- INFORMES -->
+    <section id="screen-informes" class="screen">
+      <div class="hero" style="background:linear-gradient(135deg,#0d2b55,#163d66)">
+        <h2>📊 Informes</h2><p>Generar · Descargar · Compartir por WhatsApp</p>
+      </div>
+      <div class="filter-row">
+        <span class="chip active">Este mes</span><span class="chip">Semana</span><span class="chip">Bimestre</span><span class="chip">Año</span>
+      </div>
+      <div class="inf-grid">
+        <div class="inf-card"><div class="inf-ico">📅</div><div class="inf-info"><h4>Informe de asistencia mensual</h4><p>Presencia, tardanzas y ausencias por grado · Abril 2026</p></div><div class="inf-btns"><button class="inf-btn wa" onclick="openModal('waInforme','asistencia')">📲 WA</button><button class="inf-btn dl" onclick="downloadInforme('asistencia')">⬇️ CSV</button></div></div>
+        <div class="inf-card"><div class="inf-ico">🚨</div><div class="inf-info"><h4>Informe de riesgo de deserción</h4><p>Estudiantes en riesgo alto y medio con factores</p></div><div class="inf-btns"><button class="inf-btn wa" onclick="openModal('waInforme','riesgo')">📲 WA</button><button class="inf-btn dl" onclick="downloadInforme('riesgo')">⬇️ CSV</button></div></div>
+        <div class="inf-card"><div class="inf-ico">👨‍👩‍👧</div><div class="inf-info"><h4>Informe de contacto con familias</h4><p>Comunicaciones, citaciones y compromisos</p></div><div class="inf-btns"><button class="inf-btn wa" onclick="openModal('waInforme','familias')">📲 WA</button><button class="inf-btn dl" onclick="downloadInforme('familias')">⬇️ CSV</button></div></div>
+        <div class="inf-card"><div class="inf-ico">📈</div><div class="inf-info"><h4>Informe ejecutivo para directivos</h4><p>Resumen gerencial para comité de permanencia</p></div><div class="inf-btns"><button class="inf-btn wa" onclick="openModal('waInforme','ejecutivo')">📲 WA</button><button class="inf-btn dl" onclick="downloadInforme('ejecutivo')">⬇️ CSV</button></div></div>
+        <div class="inf-card"><div class="inf-ico">🏛️</div><div class="inf-info"><h4>Reporte oficial MEN / ICBF</h4><p>Formato para entidades externas</p></div><div class="inf-btns"><button class="inf-btn wa" onclick="openModal('waInforme','oficial')">📲 WA</button><button class="inf-btn dl" onclick="downloadInforme('oficial')">⬇️ CSV</button></div></div>
+      </div>
+    </section>
   </main>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="goTo('home')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      Inicio
-      <div class="nav-pip"></div>
-    </button>
-    <button class="nav-btn" onclick="goTo('asistencia')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-      Asistencia
-      <div class="nav-pip"></div>
-    </button>
-    <button class="nav-btn" onclick="goTo('riesgo')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      Riesgo
-      <div class="nav-pip"></div>
-    </button>
-    <button class="nav-btn" onclick="goTo('comms')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-      Mensajes
-      <div class="nav-pip"></div>
-    </button>
-    <button class="nav-btn" onclick="goTo('recursos')">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-      Recursos
-      <div class="nav-pip"></div>
-    </button>
+    <button class="nav-btn active" onclick="goTo('home')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Inicio<div class="nav-pip"></div></button>
+    <button class="nav-btn" onclick="goTo('asistencia')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>Asistencia<div class="nav-pip"></div></button>
+    <button class="nav-btn" onclick="goTo('riesgo')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>Riesgo<div class="nav-pip"></div></button>
+    <button class="nav-btn" onclick="goTo('comms')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>Mensajes<div class="nav-pip"></div></button>
+    <button class="nav-btn" onclick="goTo('recursos')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>Recursos<div class="nav-pip"></div></button>
   </nav>
 </div>
 
-<!-- MODAL: Novedad / Citación -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal-sheet" onclick="e=>e.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Registrar novedad</div>
-    <div class="modal-sub">Complete la información del caso</div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Estudiante</label>
-        <select>
-          <option>Tomás Vargas Ríos</option>
-          <option>Valentina Meza García</option>
-          <option>Juan Pérez López</option>
-          <option>Sofía Torres Herrera</option>
-          <option>Andrés Rojas Medina</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Tipo de novedad</label>
-        <select>
-          <option>Inasistencia injustificada</option>
-          <option>Inasistencia justificada</option>
-          <option>Riesgo de deserción</option>
-          <option>Problema familiar</option>
-          <option>Dificultad económica</option>
-          <option>Problema de convivencia</option>
-          <option>Acoso escolar</option>
-          <option>Trabajo infantil detectado</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Observaciones (Habeas Data: información confidencial)</label>
-        <textarea placeholder="Describa la situación del estudiante..."></textarea>
-      </div>
-      <div class="form-group">
-        <label>Acción tomada</label>
-        <select>
-          <option>Notificar a padres por WhatsApp</option>
-          <option>Citar a padres de familia</option>
-          <option>Remitir a orientación escolar</option>
-          <option>Escalar a coordinación</option>
-          <option>Reportar al ICBF</option>
-          <option>Solo registrar</option>
-        </select>
-      </div>
-      <button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="submitNovedad()">Registrar y notificar</button>
-      <button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button>
-    </div>
-  </div>
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal-sheet" id="modalSheet"></div>
 </div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── ESTUDIANTES ───
-const students = [
-  { name:'Tomás Vargas Ríos',    grade:'8A', color:'#e84545', init:'TV', status:'danger', ausencias:5 },
-  { name:'Valentina Meza García',grade:'8A', color:'#f5c842', init:'VM', status:'risk',   ausencias:3 },
-  { name:'Juan Pérez López',     grade:'8A', color:'#00c896', init:'JP', status:'ok',     ausencias:0 },
-  { name:'Sofía Torres Herrera', grade:'8A', color:'#3498db', init:'ST', status:'ok',     ausencias:1 },
-  { name:'Andrés Rojas Medina',  grade:'8A', color:'#9b59b6', init:'AR', status:'risk',   ausencias:2 },
-  { name:'Laura Castillo Vega',  grade:'8A', color:'#ff7c3e', init:'LC', status:'danger', ausencias:4 },
-  { name:'Miguel Ángel Ruiz',    grade:'8A', color:'#1abc9c', init:'MR', status:'ok',     ausencias:0 },
-  { name:'Diana Morales Cano',   grade:'8A', color:'#e67e22', init:'DM', status:'ok',     ausencias:1 },
-];
+// ══ DATABASE ══
+let DB = {
+  colegio:{nombre:'Colegio San José',sede:'Principal',municipio:'Bogotá D.C.',rector:'',grado:'Grado 8°',grupo:'Grupo A'},
+  profesores:[
+    {id:1,nombre:'María Díaz Rojas',cedula:'52.100.200',asignatura:'Matemáticas',telefono:'3001234567',grado:'8A'},
+    {id:2,nombre:'Carlos Mora Suárez',cedula:'19.500.300',asignatura:'Español',telefono:'3107654321',grado:'9B'}
+  ],
+  alumnos:[
+    {id:1,nombre:'Tomás Vargas Ríos',grado:'8A',acudiente:'Sandra Ríos',telAcudiente:'3154445566',ausencias:5,status:'danger',color:'#e84545'},
+    {id:2,nombre:'Valentina Meza García',grado:'8A',acudiente:'Luis Meza',telAcudiente:'3162223344',ausencias:3,status:'risk',color:'#f5c842'},
+    {id:3,nombre:'Juan Pérez López',grado:'8A',acudiente:'Rosa López',telAcudiente:'3178887799',ausencias:0,status:'ok',color:'#00c896'},
+    {id:4,nombre:'Sofía Torres Herrera',grado:'8A',acudiente:'Pedro Torres',telAcudiente:'3001119988',ausencias:1,status:'ok',color:'#3498db'},
+    {id:5,nombre:'Andrés Rojas Medina',grado:'8A',acudiente:'Gloria Medina',telAcudiente:'3134567890',ausencias:2,status:'risk',color:'#9b59b6'},
+    {id:6,nombre:'Laura Castillo Vega',grado:'8A',acudiente:'Jorge Castillo',telAcudiente:'3196543210',ausencias:4,status:'danger',color:'#ff7c3e'}
+  ],
+  riesgo:[
+    {nombre:'Tomás Vargas',grado:'8A',score:88,level:'alto',factors:[{l:'Ausentismo',t:'aca'},{l:'Económico',t:'eco'},{l:'Familiar',t:'soc'}],telAcudiente:'3154445566'},
+    {nombre:'Laura Castillo',grado:'8A',score:81,level:'alto',factors:[{l:'Trabajo infantil',t:'eco'},{l:'Desmotivación',t:'aca'}],telAcudiente:'3196543210'},
+    {nombre:'Valentina Meza',grado:'8A',score:65,level:'medio',factors:[{l:'Bajo rendimiento',t:'aca'},{l:'Sin contacto',t:'soc'}],telAcudiente:'3162223344'},
+    {nombre:'Andrés Rojas',grado:'8A',score:58,level:'medio',factors:[{l:'Conflicto hogar',t:'soc'},{l:'Tardanzas',t:'aca'}],telAcudiente:'3134567890'}
+  ]
+};
 
-const riskData = [
-  { name:'Tomás Vargas', grade:'8A', score:88, level:'alto',
-    factors:[{l:'Ausentismo',t:'aca'},{l:'Económico',t:'eco'},{l:'Familiar',t:'soc'}] },
-  { name:'Laura Castillo', grade:'8A', score:81, level:'alto',
-    factors:[{l:'Trabajo infantil',t:'eco'},{l:'Desmotivación',t:'aca'}] },
-  { name:'Valentina Meza', grade:'8A', score:65, level:'medio',
-    factors:[{l:'Bajo rendimiento',t:'aca'},{l:'Padres sin contacto',t:'soc'}] },
-  { name:'Andrés Rojas', grade:'8A', score:58, level:'medio',
-    factors:[{l:'Conflicto hogar',t:'soc'},{l:'Ausentismo tardanza',t:'aca'}] },
-  { name:'Carlos Jiménez', grade:'9B', score:41, level:'medio',
-    factors:[{l:'Zona rural lejana',t:'eco'}] },
-  { name:'Sara Londoño', grade:'10C', score:18, level:'bajo',
-    factors:[{l:'Rendimiento normal',t:'aca'}] },
-];
+function loadDB(){try{const s=localStorage.getItem('presenciaDB');if(s)DB=JSON.parse(s)}catch(e){}}
+function saveDB(){try{localStorage.setItem('presenciaDB',JSON.stringify(DB))}catch(e){}}
 
-// ─── INIT ───
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('splash').style.opacity = '0';
-    setTimeout(() => {
-      document.getElementById('splash').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-    }, 500);
-  }, 1800);
-
-  setDate();
-  renderStudents();
-  renderRisks();
+// ══ INIT ══
+window.addEventListener('load',()=>{
+  loadDB();
+  setTimeout(()=>{
+    document.getElementById('splash').style.opacity='0';
+    setTimeout(()=>{document.getElementById('splash').style.display='none';document.getElementById('app').style.display='flex'},500);
+  },1600);
+  setDate();updateColegioHeader();renderStudents('8A');renderRisks();
 });
 
-function setDate() {
-  const now = new Date();
-  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-  const str = now.toLocaleDateString('es-CO', opts);
-  const cap = str.charAt(0).toUpperCase() + str.slice(1);
-  document.getElementById('currentDate').textContent = cap;
-  document.getElementById('asistDate').textContent = cap + ' · Clase activa';
-
-  const h = now.getHours();
-  let greet = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
-  document.getElementById('welcomeMsg').textContent = greet + ', Docente';
+function setDate(){
+  const now=new Date();
+  const s=now.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const cap=s.charAt(0).toUpperCase()+s.slice(1);
+  document.getElementById('currentDate').textContent=cap;
+  document.getElementById('asistDate').textContent=cap+' · Clase activa';
+  const h=now.getHours();
+  const g=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  document.getElementById('welcomeMsg').textContent=g+', '+roles[roleIdx].greet;
+}
+function updateColegioHeader(){
+  document.getElementById('colegioNombre').textContent=DB.colegio.nombre;
+  document.getElementById('gradoNombre').textContent=DB.colegio.grado+' — '+DB.colegio.grupo;
 }
 
-// ─── NAV ───
-function goTo(screen) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('screen-' + screen).classList.add('active');
-  const idx = ['home','asistencia','riesgo','comms','recursos'].indexOf(screen);
-  if (idx >= 0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
-  window.scrollTo(0, 0);
+// ══ NAV ══
+const navScreens=['home','asistencia','riesgo','comms','recursos'];
+function goTo(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  const idx=navScreens.indexOf(screen);
+  if(idx>=0)document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  window.scrollTo(0,0);
 }
 
-// ─── STUDENTS ───
-const attendState = {};
-function renderStudents() {
-  const list = document.getElementById('studentList');
-  list.innerHTML = students.map((s, i) => {
-    attendState[i] = s.status === 'ok' ? 'P' : s.status === 'risk' ? 'T' : 'A';
-    const badgeClass = s.status === 'ok' ? 'ok' : s.status === 'risk' ? 'risk' : 'danger';
-    const badgeText = s.status === 'ok' ? '✓ Presente' : s.status === 'risk' ? '⚠ Tardanza' : '✗ Ausente';
-    return `<div class="student-card" onclick="cycleAttend(${i})">
-      <div class="stu-ava" style="background:${s.color}22;color:${s.color}">${s.init}</div>
-      <div class="stu-info">
-        <div class="stu-name">${s.name}</div>
-        <div class="stu-sub">Grado ${s.grade} · ${s.ausencias} ausencia(s) este mes</div>
+// ══ ASISTENCIA ══
+const attendState={};
+let currentGrado='8A';
+
+function filterGrado(el,grado){
+  document.querySelectorAll('#gradoChips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');currentGrado=grado;renderStudents(grado);
+}
+
+function renderStudents(grado){
+  const list=document.getElementById('studentList');
+  const filtered=DB.alumnos.filter(a=>a.grado===grado);
+  if(!filtered.length){
+    list.innerHTML=`<div style="text-align:center;padding:30px;color:var(--gris);font-size:.85rem">No hay alumnos en este grado.<br><br><button class="btn-primary" style="margin:0 auto;display:block;width:fit-content;padding:10px 20px" onclick="openModal('addAlumno')">+ Agregar alumno</button></div>`;
+    return;
+  }
+  list.innerHTML=filtered.map(s=>{
+    const key=s.grado+'-'+s.id;
+    if(!attendState[key])attendState[key]=s.status==='ok'?'P':s.status==='risk'?'T':'A';
+    const bClass=attendState[key]==='P'?'ok':attendState[key]==='T'?'risk':attendState[key]==='A'?'danger':'ok';
+    const bText={P:'✓ Presente',T:'⚠ Tardanza',A:'✗ Ausente',J:'📄 Justificado'}[attendState[key]];
+    const ini=s.nombre.split(' ').map(x=>x[0]).join('').slice(0,2);
+    return `<div class="student-card">
+      <div class="stu-ava" style="background:${s.color}22;color:${s.color}" onclick="cycleAttend('${key}')">${ini}</div>
+      <div class="stu-info" onclick="cycleAttend('${key}')">
+        <div class="stu-name">${s.nombre}</div>
+        <div class="stu-sub">Grado ${s.grado} · ${s.ausencias} ausencia(s)</div>
       </div>
-      <span class="stu-badge ${badgeClass}" id="badge-${i}">${badgeText}</span>
+      <div class="stu-actions">
+        <button class="stu-wa" onclick="sendWaAlumno(${s.id})">📲</button>
+        <button class="stu-edit" onclick="openModal('editAlumno',${s.id})">✏️</button>
+        <span class="stu-badge ${bClass}" id="badge-${key}" onclick="cycleAttend('${key}')">${bText}</span>
+      </div>
     </div>`;
   }).join('');
 }
 
-function cycleAttend(i) {
-  const cycle = ['P','T','A','J'];
-  const labels = { P:'✓ Presente', T:'⚠ Tardanza', A:'✗ Ausente', J:'📄 Justificado' };
-  const classes = { P:'ok', T:'risk', A:'danger', J:'ok' };
-  const cur = attendState[i];
-  const next = cycle[(cycle.indexOf(cur)+1) % cycle.length];
-  attendState[i] = next;
-  const badge = document.getElementById('badge-'+i);
-  badge.className = 'stu-badge ' + classes[next];
-  badge.textContent = labels[next];
+function cycleAttend(key){
+  const cycle=['P','T','A','J'];
+  const labels={P:'✓ Presente',T:'⚠ Tardanza',A:'✗ Ausente',J:'📄 Justificado'};
+  const classes={P:'ok',T:'risk',A:'danger',J:'ok'};
+  const cur=attendState[key]||'P';
+  const next=cycle[(cycle.indexOf(cur)+1)%cycle.length];
+  attendState[key]=next;
+  const badge=document.getElementById('badge-'+key);
+  if(badge){badge.className='stu-badge '+classes[next];badge.textContent=labels[next];}
 }
+function saveAttendance(){saveDB();showToast('✅ Asistencia guardada correctamente');}
 
-function saveAttendance() {
-  showToast('✅ Asistencia guardada correctamente');
-}
-
-// ─── RISKS ───
-function renderRisks() {
-  const cont = document.getElementById('riskCards');
-  cont.innerHTML = riskData.map(r => {
-    const factors = r.factors.map(f =>
-      `<span class="factor-tag ${f.t}">${f.l}</span>`).join('');
+// ══ RISKS ══
+function renderRisks(){
+  const cont=document.getElementById('riskCards');
+  cont.innerHTML=DB.riesgo.map(r=>{
+    const factors=r.factors.map(f=>`<span class="factor-tag ${f.t}">${f.l}</span>`).join('');
+    const clr=r.level==='alto'?'232,69,69':r.level==='medio'?'245,200,66':'0,200,150';
+    const vClr=r.level==='alto'?'rojo':r.level==='medio'?'amarillo':'verde';
+    const ini=r.nombre.split(' ').map(x=>x[0]).join('').slice(0,2);
     return `<div class="risk-card">
       <div class="risk-card-top">
-        <div class="risk-ava" style="background:rgba(${r.level==='alto'?'232,69,69':r.level==='medio'?'245,200,66':'0,200,150'},.15);color:var(--${r.level==='alto'?'rojo':r.level==='medio'?'amarillo':'verde'})">
-          ${r.name.split(' ').map(x=>x[0]).join('').slice(0,2)}
-        </div>
-        <div>
-          <div class="risk-name">${r.name}</div>
-          <div class="risk-meta">Grado ${r.grade}</div>
-        </div>
-        <div class="risk-score-wrap">
-          <div class="risk-score ${r.level}">${r.score}</div>
-          <div class="risk-score-label">riesgo</div>
-        </div>
+        <div class="risk-ava" style="background:rgba(${clr},.15);color:var(--${vClr})">${ini}</div>
+        <div><div class="risk-name">${r.nombre}</div><div class="risk-meta">Grado ${r.grado}</div></div>
+        <div class="risk-score-wrap"><div class="risk-score ${r.level}">${r.score}</div><div class="risk-score-label">riesgo</div></div>
       </div>
       <div class="risk-factors">${factors}</div>
-      <div class="risk-bar-wrap">
-        <div class="risk-bar-bg">
-          <div class="risk-bar-fill ${r.level}" style="width:${r.score}%"></div>
-        </div>
-      </div>
-      <button class="accion-btn" onclick="showToast('📋 Acción registrada para ${r.name}')">
-        📋 Registrar intervención
-      </button>
+      <div class="risk-bar-bg"><div class="risk-bar-fill ${r.level}" style="width:${r.score}%"></div></div>
+      <button class="accion-btn" onclick="showToast('📋 Intervención registrada')">📋 Registrar intervención</button>
+      <button class="wa-btn-risk" onclick="sendWaRiesgo('${r.nombre}','${r.telAcudiente}')">📲 WhatsApp acudiente</button>
     </div>`;
   }).join('');
 }
 
-// ─── MODAL ───
-function openModal() {
+// ══ WHATSAPP ══
+function sendWaAlumno(id){
+  const al=DB.alumnos.find(a=>a.id===id);if(!al)return;
+  const fecha=new Date().toLocaleDateString('es-CO');
+  const msg=encodeURIComponent(`Estimado/a ${al.acudiente}, buen día 🙏\n\nLe contactamos del *${DB.colegio.nombre}* para informarle que *${al.nombre}* registra *${al.ausencias} ausencia(s)* este mes.\n\n📅 Fecha: ${fecha}\n📚 Grado: ${al.grado}\n\nLe pedimos comunicarse con nosotros o acercarse a la institución.\n\n_PresencIA Escolar · ${DB.colegio.nombre}_`);
+  window.open(`https://wa.me/57${al.telAcudiente}?text=${msg}`,'_blank');
+}
+function sendWaRiesgo(nombre,tel){
+  const fecha=new Date().toLocaleDateString('es-CO');
+  const msg=encodeURIComponent(`⚠️ *Alerta de riesgo escolar*\n\nEstimado/a acudiente, buen día.\n\nLe contactamos del *${DB.colegio.nombre}* para informarle que el/la estudiante *${nombre}* ha sido identificado/a con *riesgo de deserción escolar*.\n\n📅 ${fecha}\n\nEs importante reunirnos para establecer un plan de acción. Su participación es clave.\n\n_PresencIA Escolar · ${DB.colegio.nombre}_`);
+  window.open(`https://wa.me/57${tel}?text=${msg}`,'_blank');
+}
+function sendWaMasivo(){
+  const ausentes=DB.alumnos.filter(a=>a.ausencias>0);
+  const fecha=new Date().toLocaleDateString('es-CO');
+  const msg=encodeURIComponent(`📢 *${DB.colegio.nombre}*\nInforme de asistencia · ${fecha}\n\nEstudiantes con ausencias:\n${ausentes.map(a=>`• ${a.nombre} (${a.grado}): ${a.ausencias} ausencia(s)`).join('\n')}\n\nPor favor comunicarse con la institución.\n\n_PresencIA Escolar_`);
+  window.open(`https://wa.me/?text=${msg}`,'_blank');
+}
+function sendWaInforme(tipo){
+  const fecha=new Date().toLocaleDateString('es-CO');
+  const titulos={asistencia:'📅 Informe de Asistencia',riesgo:'🚨 Informe de Riesgo de Deserción',familias:'👨‍👩‍👧 Informe de Contacto con Familias',ejecutivo:'📈 Informe Ejecutivo',oficial:'🏛️ Reporte para MEN/ICBF'};
+  const msg=encodeURIComponent(`${titulos[tipo]||'📊 Informe PresencIA'}\n\n📅 Fecha: ${fecha}\n🏫 Institución: ${DB.colegio.nombre}\n📍 Municipio: ${DB.colegio.municipio}\n\n📊 Resumen:\n• Total estudiantes: ${DB.alumnos.length}\n• Asistencia promedio: 87%\n• Riesgo alto: ${DB.riesgo.filter(r=>r.level==='alto').length}\n• Riesgo medio: ${DB.riesgo.filter(r=>r.level==='medio').length}\n\n_Generado por PresencIA Escolar · Vibras Positivas HM_`);
+  window.open(`https://wa.me/?text=${msg}`,'_blank');
+}
+
+// ══ INFORMES / CSV ══
+function downloadInforme(tipo){
+  let csv='',filename='';
+  const fecha=new Date().toLocaleDateString('es-CO');
+  if(tipo==='asistencia'){filename='informe_asistencia.csv';csv='Nombre,Grado,Ausencias,Estado\n'+DB.alumnos.map(a=>`"${a.nombre}","${a.grado}","${a.ausencias}","${a.status}"`).join('\n');}
+  else if(tipo==='riesgo'){filename='informe_riesgo.csv';csv='Nombre,Grado,Puntaje,Nivel,Factores\n'+DB.riesgo.map(r=>`"${r.nombre}","${r.grado}","${r.score}","${r.level}","${r.factors.map(f=>f.l).join('; ')}"`).join('\n');}
+  else if(tipo==='familias'){filename='informe_familias.csv';csv='Estudiante,Grado,Acudiente,Teléfono,Ausencias\n'+DB.alumnos.map(a=>`"${a.nombre}","${a.grado}","${a.acudiente}","${a.telAcudiente}","${a.ausencias}"`).join('\n');}
+  else{filename=`informe_${tipo}.csv`;csv=`Institución,${DB.colegio.nombre}\nFecha,${fecha}\nTotal estudiantes,${DB.alumnos.length}\nAsistencia promedio,87%\nRiesgo alto,${DB.riesgo.filter(r=>r.level==='alto').length}\nRiesgo medio,${DB.riesgo.filter(r=>r.level==='medio').length}`;}
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+  showToast('⬇️ Descargando '+filename,'blue');
+}
+
+// ══ BACKUP / RESTORE ══
+function doBackup(){
+  const json=JSON.stringify(DB,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  const fecha=new Date().toISOString().split('T')[0];
+  a.href=url;a.download=`presencia_backup_${fecha}.json`;a.click();URL.revokeObjectURL(url);
+  showToast('☁️ Backup descargado exitosamente','blue');closeModal();
+}
+function doRestore(file){
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.colegio&&data.alumnos){DB=data;saveDB();updateColegioHeader();renderStudents(currentGrado);renderRisks();showToast('✅ Datos restaurados correctamente');closeModal();}
+      else showToast('❌ Archivo no válido','red');
+    }catch(err){showToast('❌ Error al leer el archivo','red');}
+  };
+  reader.readAsText(file);
+}
+
+// ══ MODAL ENGINE ══
+function openModal(type,param){
+  const sheet=document.getElementById('modalSheet');
+  sheet.innerHTML=buildModal(type,param);
   document.getElementById('modalOverlay').classList.add('open');
 }
-function closeModal(e) {
-  if (!e || e.target === document.getElementById('modalOverlay')) {
-    document.getElementById('modalOverlay').classList.remove('open');
+
+function buildModal(type,param){
+  const h=`<div class="modal-handle"></div>`;
+  if(type==='editColegio')return`${h}<div class="modal-title">🏫 Editar colegio</div><div class="modal-sub">Información de la institución educativa</div><div class="modal-body"><div class="form-group"><label>Nombre del colegio</label><input id="mColNombre" value="${DB.colegio.nombre}"></div><div class="form-group"><label>Sede</label><input id="mColSede" value="${DB.colegio.sede}"></div><div class="form-group"><label>Municipio / Ciudad</label><input id="mColMun" value="${DB.colegio.municipio}"></div><div class="form-group"><label>Rector/a</label><input id="mColRector" value="${DB.colegio.rector}" placeholder="Nombre del rector/a"></div><div class="form-row"><div class="form-group"><label>Grado</label><input id="mColGrado" value="${DB.colegio.grado}"></div><div class="form-group"><label>Grupo</label><input id="mColGrupo" value="${DB.colegio.grupo}"></div></div><button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="saveColegio()">✅ Guardar cambios</button><button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  if(type==='addProfesor')return`${h}<div class="modal-title">👨‍🏫 Ingresar docente</div><div class="modal-sub">Datos del nuevo profesor (Habeas Data protegido)</div><div class="modal-body"><div class="form-group"><label>Nombre completo</label><input id="pNombre" placeholder="Nombre y apellidos"></div><div class="form-row"><div class="form-group"><label>Cédula</label><input id="pCedula" placeholder="12.345.678"></div><div class="form-group"><label>Grado asignado</label><input id="pGrado" placeholder="Ej: 8A"></div></div><div class="form-group"><label>Asignatura</label><input id="pAsig" placeholder="Ej: Matemáticas"></div><div class="form-group"><label>Teléfono WhatsApp</label><input id="pTel" type="tel" placeholder="3001234567"></div><button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="saveProfesor()">✅ Registrar docente</button><button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  if(type==='addAlumno')return`${h}<div class="modal-title">🎒 Ingresar estudiante</div><div class="modal-sub">Datos del nuevo alumno (Habeas Data protegido)</div><div class="modal-body"><div class="form-group"><label>Nombre completo del estudiante</label><input id="aNombre" placeholder="Nombre y apellidos"></div><div class="form-row"><div class="form-group"><label>Grado</label><select id="aGrado"><option>8A</option><option>9B</option><option>10C</option><option>11A</option><option>11B</option></select></div><div class="form-group"><label>Fecha nacimiento</label><input id="aFecha" type="date"></div></div><div class="form-group"><label>Nombre del acudiente</label><input id="aAcudiente" placeholder="Padre/madre/acudiente"></div><div class="form-group"><label>Teléfono acudiente (WhatsApp)</label><input id="aTel" type="tel" placeholder="3001234567"></div><div class="form-group"><label>Estado inicial</label><select id="aStatus"><option value="ok">✓ Activo - Sin novedades</option><option value="risk">⚠ Seguimiento</option><option value="danger">🔴 Riesgo</option></select></div><button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="saveAlumno()">✅ Registrar estudiante</button><button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  if(type==='editAlumno'){
+    const al=DB.alumnos.find(a=>a.id===param);if(!al)return'';
+    return`${h}<div class="modal-title">✏️ Editar estudiante</div><div class="modal-sub">${al.nombre} · Grado ${al.grado}</div><div class="modal-body"><div class="form-group"><label>Nombre completo</label><input id="eaNombre" value="${al.nombre}"></div><div class="form-row"><div class="form-group"><label>Grado</label><select id="eaGrado"><option ${al.grado==='8A'?'selected':''}>8A</option><option ${al.grado==='9B'?'selected':''}>9B</option><option ${al.grado==='10C'?'selected':''}>10C</option><option ${al.grado==='11A'?'selected':''}>11A</option></select></div><div class="form-group"><label>Ausencias</label><input id="eaAus" type="number" value="${al.ausencias}" min="0"></div></div><div class="form-group"><label>Acudiente</label><input id="eaAcud" value="${al.acudiente}"></div><div class="form-group"><label>Teléfono acudiente</label><input id="eaTel" type="tel" value="${al.telAcudiente}"></div><div class="form-group"><label>Estado</label><select id="eaStatus"><option value="ok" ${al.status==='ok'?'selected':''}>✓ Sin novedades</option><option value="risk" ${al.status==='risk'?'selected':''}>⚠ Seguimiento</option><option value="danger" ${al.status==='danger'?'selected':''}>🔴 Riesgo</option></select></div><button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="updateAlumno(${param})">✅ Guardar cambios</button><button class="btn-outline" style="width:100%;margin-bottom:6px" onclick="closeModal()">Cancelar</button><button style="width:100%;background:rgba(232,69,69,.15);border:1px solid rgba(232,69,69,.3);color:var(--rojo);border-radius:var(--radio-sm);padding:12px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;margin-bottom:4px" onclick="deleteAlumno(${param})">🗑️ Eliminar estudiante</button></div>`;
   }
-}
-function submitNovedad() {
-  closeModal();
-  showToast('✅ Novedad registrada y notificación enviada');
+
+  if(type==='listaAlumnos')return`${h}<div class="modal-title">📋 Lista de estudiantes</div><div class="modal-sub">Total: ${DB.alumnos.length} alumno(s) registrado(s)</div><div class="modal-body"><div style="display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;padding-bottom:8px">${DB.alumnos.map(a=>{const ini=a.nombre.split(' ').map(x=>x[0]).join('').slice(0,2);return`<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px"><div style="width:36px;height:36px;border-radius:50%;background:${a.color}22;color:${a.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0">${ini}</div><div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:#fff">${a.nombre}</div><div style="font-size:.72rem;color:var(--gris)">${a.grado} · ${a.acudiente}</div></div><button class="stu-edit" onclick="closeModal();setTimeout(()=>openModal('editAlumno',${a.id}),120)">✏️</button><button class="stu-wa" onclick="sendWaAlumno(${a.id})">📲</button></div>`;}).join('')}</div><button class="btn-primary" style="width:100%;margin-top:12px;margin-bottom:8px" onclick="closeModal();openModal('addAlumno')">+ Agregar estudiante</button><button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cerrar</button></div>`;
+
+  if(type==='novedad')return`${h}<div class="modal-title">📝 Registrar novedad</div><div class="modal-sub">Complete la información del caso</div><div class="modal-body"><div class="form-group"><label>Estudiante</label><select id="novEst">${DB.alumnos.map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('')}</select></div><div class="form-group"><label>Tipo de novedad</label><select><option>Inasistencia injustificada</option><option>Inasistencia justificada</option><option>Riesgo de deserción</option><option>Problema familiar</option><option>Dificultad económica</option><option>Acoso escolar</option><option>Trabajo infantil detectado</option></select></div><div class="form-group"><label>Observaciones <span style="font-size:.68rem;color:var(--rojo)">(confidencial · Habeas Data)</span></label><textarea placeholder="Describa la situación..."></textarea></div><div class="form-group"><label>Acción tomada</label><select><option>Notificar a padres por WhatsApp</option><option>Citar a padres de familia</option><option>Remitir a orientación escolar</option><option>Escalar a coordinación</option><option>Reportar al ICBF</option><option>Solo registrar</option></select></div><button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="submitNovedad()">✅ Registrar y notificar</button><button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  if(type==='waGrupal'){
+    const ausentes=DB.alumnos.filter(a=>a.ausencias>0);
+    const fecha=new Date().toLocaleDateString('es-CO');
+    const prev=`📢 *${DB.colegio.nombre}*\nInforme · ${fecha}\n\n${ausentes.map(a=>`• ${a.nombre} (${a.grado}): ${a.ausencias} ausencia(s)`).join('\n')}\n\n_PresencIA Escolar_`;
+    return`${h}<div class="modal-title">📲 WhatsApp masivo</div><div class="modal-sub">Notificar ausencias a todos los acudientes</div><div class="modal-body"><div class="wa-preview">${prev}</div><p style="font-size:.78rem;color:var(--gris);margin-bottom:12px">Toca cada contacto para enviar individualmente:</p><div class="wa-recipients">${ausentes.map(a=>`<div class="wa-rec-item" onclick="sendWaAlumno(${a.id})"><div class="wa-rec-ava" style="background:${a.color}22;color:${a.color}">${a.nombre.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><div class="wa-rec-name">${a.acudiente}</div><div class="wa-rec-role">Acudiente de ${a.nombre}</div></div><span style="color:#25d366;font-weight:700">📲</span></div>`).join('')}</div><button class="wa-send-btn" onclick="sendWaMasivo()">📲 Abrir WhatsApp con mensaje grupal</button><button class="btn-outline" style="width:100%;margin-top:8px;margin-bottom:4px" onclick="closeModal()">Cerrar</button></div>`;
+  }
+
+  if(type==='waDirecto')return`${h}<div class="modal-title">📲 Enviar WhatsApp</div><div class="modal-sub">Selecciona el destinatario</div><div class="modal-body"><div class="wa-recipients">${DB.alumnos.map(a=>`<div class="wa-rec-item" onclick="sendWaAlumno(${a.id})"><div class="wa-rec-ava" style="background:${a.color}22;color:${a.color}">${a.nombre.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><div class="wa-rec-name">${a.acudiente}</div><div class="wa-rec-role">Acudiente de ${a.nombre} · ${a.grado}</div></div><span style="color:#25d366;font-weight:700">📲</span></div>`).join('')}${DB.profesores.map(p=>`<div class="wa-rec-item" onclick="window.open('https://wa.me/57${p.telefono}?text=Hola%20${encodeURIComponent(p.nombre)}','_blank')"><div class="wa-rec-ava" style="background:rgba(52,152,219,.2);color:#85c1e9">${p.nombre.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><div class="wa-rec-name">${p.nombre}</div><div class="wa-rec-role">Docente · ${p.asignatura}</div></div><span style="color:#25d366;font-weight:700">📲</span></div>`).join('')}</div><button class="btn-outline" style="width:100%;margin-top:8px;margin-bottom:4px" onclick="closeModal()">Cerrar</button></div>`;
+
+  if(type==='waInforme')return`${h}<div class="modal-title">📲 Compartir informe por WhatsApp</div><div class="modal-sub">Selecciona a quién enviar</div><div class="modal-body"><div class="wa-recipients">${DB.profesores.map(p=>`<div class="wa-rec-item" onclick="sendWaInforme('${param}');closeModal()"><div class="wa-rec-ava" style="background:rgba(52,152,219,.2);color:#85c1e9">${p.nombre.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><div class="wa-rec-name">${p.nombre}</div><div class="wa-rec-role">Docente · ${p.asignatura}</div></div><span style="color:#25d366;font-weight:700">📲</span></div>`).join('')}<div class="wa-rec-item" onclick="sendWaInforme('${param}');closeModal()"><div class="wa-rec-ava" style="background:rgba(155,89,182,.2);color:#c39bd3">CO</div><div><div class="wa-rec-name">Coordinación académica</div><div class="wa-rec-role">Directivo institucional</div></div><span style="color:#25d366;font-weight:700">📲</span></div><div class="wa-rec-item" onclick="sendWaInforme('${param}');closeModal()"><div class="wa-rec-ava" style="background:rgba(232,69,69,.2);color:var(--rojo)">IC</div><div><div class="wa-rec-name">ICBF / MEN</div><div class="wa-rec-role">Entidad externa</div></div><span style="color:#25d366;font-weight:700">📲</span></div></div><button class="btn-outline" style="width:100%;margin-top:8px;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  if(type==='backup')return`${h}<div class="modal-title">☁️ Backup de datos</div><div class="modal-sub">Exportar toda la información</div><div class="modal-body"><div class="backup-info">💾 El backup incluye: <strong>${DB.alumnos.length} alumnos</strong>, <strong>${DB.profesores.length} docentes</strong>, datos del colegio y registros.<br><br>📅 Generado: ${new Date().toLocaleDateString('es-CO')}</div><button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="doBackup()">⬇️ Descargar backup JSON</button><button class="btn-outline" style="width:100%;margin-bottom:10px" onclick="downloadInforme('asistencia');closeModal()">⬇️ Exportar asistencia CSV</button><button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  if(type==='restore')return`${h}<div class="modal-title">🔄 Restaurar datos</div><div class="modal-sub">Importar un backup guardado anteriormente</div><div class="modal-body"><div class="backup-info" style="border-color:rgba(245,200,66,.3);background:rgba(245,200,66,.07)">⚠️ <strong>Atención:</strong> Restaurar un backup reemplazará TODOS los datos actuales. Esta acción no se puede deshacer.</div><div class="form-group" style="margin-top:16px"><label>Seleccionar archivo de backup (.json)</label><input type="file" accept=".json" id="restoreFile" style="color:var(--gris)" onchange="doRestore(this.files[0])"></div><button class="btn-outline" style="width:100%;margin-top:8px;margin-bottom:4px" onclick="closeModal()">Cancelar</button></div>`;
+
+  return'';
 }
 
-// ─── TOAST ───
+// ══ CRUD ══
+function saveColegio(){
+  DB.colegio.nombre=document.getElementById('mColNombre').value.trim()||DB.colegio.nombre;
+  DB.colegio.sede=document.getElementById('mColSede').value.trim()||DB.colegio.sede;
+  DB.colegio.municipio=document.getElementById('mColMun').value.trim()||DB.colegio.municipio;
+  DB.colegio.rector=document.getElementById('mColRector').value.trim();
+  DB.colegio.grado=document.getElementById('mColGrado').value.trim()||DB.colegio.grado;
+  DB.colegio.grupo=document.getElementById('mColGrupo').value.trim()||DB.colegio.grupo;
+  saveDB();updateColegioHeader();closeModal();showToast('🏫 Datos del colegio actualizados');
+}
+function saveProfesor(){
+  const nombre=document.getElementById('pNombre').value.trim();
+  if(!nombre){showToast('⚠️ Ingresa el nombre','red');return;}
+  DB.profesores.push({id:Date.now(),nombre,cedula:document.getElementById('pCedula').value.trim(),asignatura:document.getElementById('pAsig').value.trim(),telefono:document.getElementById('pTel').value.trim(),grado:document.getElementById('pGrado').value.trim()});
+  saveDB();closeModal();showToast('👨‍🏫 Docente registrado correctamente');
+}
+function saveAlumno(){
+  const nombre=document.getElementById('aNombre').value.trim();
+  if(!nombre){showToast('⚠️ Ingresa el nombre','red');return;}
+  const colors=['#e84545','#f5c842','#00c896','#3498db','#9b59b6','#ff7c3e','#1abc9c','#e67e22'];
+  DB.alumnos.push({id:Date.now(),nombre,grado:document.getElementById('aGrado').value,acudiente:document.getElementById('aAcudiente').value.trim()||'Sin registrar',telAcudiente:document.getElementById('aTel').value.trim()||'0',ausencias:0,status:document.getElementById('aStatus').value,color:colors[DB.alumnos.length%colors.length]});
+  saveDB();closeModal();renderStudents(currentGrado);showToast('🎒 Estudiante registrado correctamente');
+}
+function updateAlumno(id){
+  const al=DB.alumnos.find(a=>a.id===id);if(!al)return;
+  al.nombre=document.getElementById('eaNombre').value.trim()||al.nombre;
+  al.grado=document.getElementById('eaGrado').value;
+  al.ausencias=parseInt(document.getElementById('eaAus').value)||0;
+  al.acudiente=document.getElementById('eaAcud').value.trim()||al.acudiente;
+  al.telAcudiente=document.getElementById('eaTel').value.trim()||al.telAcudiente;
+  al.status=document.getElementById('eaStatus').value;
+  saveDB();closeModal();renderStudents(currentGrado);showToast('✅ Datos del estudiante actualizados');
+}
+function deleteAlumno(id){
+  if(!confirm('¿Eliminar este estudiante? Esta acción no se puede deshacer.'))return;
+  DB.alumnos=DB.alumnos.filter(a=>a.id!==id);
+  saveDB();closeModal();renderStudents(currentGrado);showToast('🗑️ Estudiante eliminado','red');
+}
+function submitNovedad(){closeModal();showToast('✅ Novedad registrada · notificación enviada');}
+
+// ══ MODAL CLOSE ══
+function closeModalOutside(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+
+// ══ TOAST ══
 let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
+function showToast(msg,color){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(color==='red'?' red':color==='blue'?' blue':'');
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ─── ROLE TOGGLE ───
-const roles = [
-  { label:'Docente', init:'MD', greet:'Docente' },
-  { label:'Director', init:'DC', greet:'Director(a)' },
-  { label:'Orientador', init:'OR', greet:'Orientador(a)' },
-  { label:'Admin', init:'AD', greet:'Administrador(a)' },
-];
-let roleIdx = 0;
-function toggleRole() {
-  roleIdx = (roleIdx + 1) % roles.length;
-  const r = roles[roleIdx];
-  document.getElementById('roleLabel').textContent = r.label;
-  document.getElementById('userAvatar').textContent = r.init;
-  const h = new Date().getHours();
-  let greet = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
-  document.getElementById('welcomeMsg').textContent = `${greet}, ${r.greet}`;
+// ══ ROLE TOGGLE ══
+const roles=[{label:'Docente',init:'MD',greet:'Docente'},{label:'Director',init:'DC',greet:'Director(a)'},{label:'Orientador',init:'OR',greet:'Orientador(a)'},{label:'Admin',init:'AD',greet:'Administrador(a)'}];
+let roleIdx=0;
+function toggleRole(){
+  roleIdx=(roleIdx+1)%roles.length;const r=roles[roleIdx];
+  document.getElementById('roleLabel').textContent=r.label;
+  document.getElementById('userAvatar').textContent=r.init;
+  const h=new Date().getHours();const g=h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  document.getElementById('welcomeMsg').textContent=`${g}, ${r.greet}`;
   showToast(`Modo: ${r.label}`);
 }
 
-// ─── CHIPS ───
-document.querySelectorAll('.chip').forEach(c => {
-  c.addEventListener('click', function() {
-    this.closest('.filter-row').querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
-    this.classList.add('active');
-  });
+// ══ CHIPS GENÉRICOS ══
+document.querySelectorAll('.filter-row:not(#gradoChips) .chip').forEach(c=>{
+  c.addEventListener('click',function(){this.closest('.filter-row').querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));this.classList.add('active');});
 });
 
-// ─── PWA SERVICE WORKER ───
-if ('serviceWorker' in navigator) {
-  const sw = `
-    const CACHE = 'presencia-v1';
-    self.addEventListener('install', e => {
-      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
-    });
-    self.addEventListener('fetch', e => {
-      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-    });
-  `;
-  const blob = new Blob([sw], { type: 'application/javascript' });
-  navigator.serviceWorker.register(URL.createObjectURL(blob));
+// ══ PWA SERVICE WORKER ══
+if('serviceWorker'in navigator){
+  const sw=`const C='presencia-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['/']))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+  const blob=new Blob([sw],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
 }
 </script>
 </body>
