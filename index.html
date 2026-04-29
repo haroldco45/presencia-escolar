@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0a2540">
+<meta name="description" content="PresencIA Escolar - Plataforma para prevenir el ausentismo y la deserción escolar en Colombia">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PresencIA">
+<title>PresencIA Escolar · Colombia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --verde: #00c896;
+    --verde-oscuro: #00a07a;
+    --azul: #0a2540;
+    --azul-medio: #163d66;
+    --amarillo: #f5c842;
+    --rojo: #e84545;
+    --naranja: #ff7c3e;
+    --blanco: #f7f9fc;
+    --gris: #8892a4;
+    --gris-claro: #e8edf5;
+    --sombra: 0 4px 24px rgba(10,37,64,0.13);
+    --radio: 18px;
+    --radio-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--azul);
+    color: var(--blanco);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── SPLASH ─── */
+  #splash {
+    position: fixed; inset: 0; z-index: 999;
+    background: linear-gradient(145deg, #0a2540 0%, #163d66 60%, #00c896 150%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity .5s ease;
+  }
+  #splash .logo-big {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.6rem, 8vw, 4.2rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #fff;
+    line-height: 1;
+  }
+  #splash .logo-big span { color: var(--verde); }
+  #splash p { color: rgba(255,255,255,.6); margin-top: 8px; font-size: .95rem; letter-spacing: .5px; }
+  #splash .loader {
+    width: 52px; height: 4px; background: rgba(255,255,255,.15);
+    border-radius: 4px; margin-top: 36px; overflow: hidden;
+  }
+  #splash .loader::after {
+    content: ''; display: block; height: 100%;
+    background: var(--verde); border-radius: 4px;
+    animation: loadbar 1.5s ease forwards;
+  }
+  @keyframes loadbar { from { width: 0 } to { width: 100% } }
+  #splash .brand {
+    position: absolute; bottom: 28px;
+    font-size: .75rem; color: rgba(255,255,255,.35); text-align: center; line-height: 1.6;
+  }
+
+  /* ─── LAYOUT ─── */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+
+  /* ─── TOP NAV ─── */
+  header {
+    background: rgba(10,37,64,.97);
+    backdrop-filter: blur(12px);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .logo {
+    font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 700;
+    color: #fff; letter-spacing: -.5px;
+  }
+  .logo span { color: var(--verde); }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .badge-role {
+    background: rgba(0,200,150,.18); color: var(--verde);
+    font-size: .72rem; font-weight: 600; padding: 4px 10px;
+    border-radius: 20px; border: 1px solid rgba(0,200,150,.3);
+    letter-spacing: .4px; text-transform: uppercase;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--verde), var(--azul-medio));
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700; cursor: pointer;
+  }
+
+  /* ─── BOTTOM NAV ─── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(10,37,64,.97); backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255,255,255,.08);
+    display: flex; z-index: 50;
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 4px 14px; gap: 4px; border: none; background: none;
+    color: var(--gris); cursor: pointer; transition: color .2s;
+    font-family: 'DM Sans', sans-serif; font-size: .65rem; font-weight: 500;
+    letter-spacing: .3px;
+  }
+  .nav-btn.active { color: var(--verde); }
+  .nav-btn svg { width: 22px; height: 22px; stroke-width: 1.8; }
+  .nav-pip {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--verde); display: none; margin-top: -2px;
+  }
+  .nav-btn.active .nav-pip { display: block; }
+
+  /* ─── MAIN CONTENT ─── */
+  main { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+
+  .screen { display: none; animation: fadeUp .3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── PANTALLA: DASHBOARD ─── */
+  .hero-dash {
+    background: linear-gradient(135deg, var(--azul-medio) 0%, #0d3257 100%);
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .hero-dash h2 {
+    font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600;
+    line-height: 1.3; color: #fff;
+  }
+  .hero-dash p { color: rgba(255,255,255,.55); font-size: .85rem; margin-top: 4px; }
+  .hero-dash .date-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(0,200,150,.15); color: var(--verde);
+    font-size: .75rem; font-weight: 600; padding: 5px 12px;
+    border-radius: 20px; margin-top: 12px;
+  }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; padding: 18px 16px 0;
+  }
+  .kpi {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+    border-radius: var(--radio); padding: 16px; cursor: pointer;
+    transition: background .2s, transform .15s;
+  }
+  .kpi:hover { background: rgba(255,255,255,.09); transform: translateY(-2px); }
+  .kpi .kpi-val {
+    font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700;
+    line-height: 1; color: #fff;
+  }
+  .kpi .kpi-val.verde { color: var(--verde); }
+  .kpi .kpi-val.amarillo { color: var(--amarillo); }
+  .kpi .kpi-val.rojo { color: var(--rojo); }
+  .kpi .kpi-val.naranja { color: var(--naranja); }
+  .kpi .kpi-label { font-size: .72rem; color: var(--gris); margin-top: 4px; line-height: 1.3; }
+  .kpi .kpi-trend { font-size: .7rem; margin-top: 8px; font-weight: 600; }
+  .kpi .kpi-trend.up::before { content: '▲ '; color: var(--rojo); }
+  .kpi .kpi-trend.down::before { content: '▼ '; color: var(--verde); }
+
+  .section-title {
+    font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600;
+    padding: 20px 16px 10px; color: #fff; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .section-title a {
+    font-family: 'DM Sans', sans-serif; font-size: .75rem;
+    color: var(--verde); text-decoration: none; font-weight: 500;
+  }
+
+  /* Alertas */
+  .alert-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+  .alert-card {
+    background: rgba(255,255,255,.05); border-radius: var(--radio-sm);
+    border-left: 3px solid var(--rojo); padding: 12px 14px;
+    display: flex; gap: 12px; align-items: flex-start;
+    transition: background .2s;
+  }
+  .alert-card.warning { border-left-color: var(--amarillo); }
+  .alert-card.info    { border-left-color: var(--azul-medio); }
+  .alert-card .icon-circle {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    background: rgba(232,69,69,.15);
+  }
+  .alert-card.warning .icon-circle { background: rgba(245,200,66,.15); }
+  .alert-card.info .icon-circle    { background: rgba(22,61,102,.3); }
+  .alert-card h4 { font-size: .85rem; font-weight: 600; color: #fff; }
+  .alert-card p  { font-size: .76rem; color: var(--gris); margin-top: 2px; line-height: 1.4; }
+  .alert-card .tag {
+    font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 20px;
+    background: rgba(232,69,69,.2); color: var(--rojo); margin-top: 6px; display: inline-block;
+  }
+  .alert-card.warning .tag { background: rgba(245,200,66,.2); color: var(--amarillo); }
+
+  /* Mini bar chart */
+  .mini-chart-wrap { padding: 0 16px 6px; }
+  .mini-chart {
+    background: rgba(255,255,255,.04); border-radius: var(--radio);
+    border: 1px solid rgba(255,255,255,.07); padding: 14px;
+  }
+  .mini-chart h4 { font-size: .8rem; color: var(--gris); margin-bottom: 10px; font-weight: 500; }
+  .bars { display: flex; align-items: flex-end; gap: 6px; height: 60px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar {
+    width: 100%; border-radius: 4px 4px 0 0;
+    background: var(--verde); opacity: .7; transition: opacity .2s; cursor: pointer;
+  }
+  .bar:hover { opacity: 1; }
+  .bar.alert { background: var(--rojo); }
+  .bar.warn  { background: var(--amarillo); }
+  .bar-label { font-size: .62rem; color: var(--gris); }
+
+  /* ─── PANTALLA: ASISTENCIA ─── */
+  .asistencia-header {
+    background: linear-gradient(135deg, var(--azul-medio), #0d3257);
+    padding: 20px 16px 16px;
+  }
+  .asistencia-header h2 {
+    font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; color: #fff;
+  }
+  .asistencia-header p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
+
+  .filter-row {
+    display: flex; gap: 8px; padding: 14px 16px 0; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12); color: var(--gris);
+    font-size: .75rem; font-weight: 500; padding: 6px 14px;
+    border-radius: 20px; cursor: pointer; transition: all .2s; white-space: nowrap;
+  }
+  .chip.active { background: var(--verde); color: var(--azul); border-color: var(--verde); font-weight: 700; }
+
+  .student-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .student-card {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radio-sm); padding: 12px 14px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: background .2s;
+  }
+  .student-card:hover { background: rgba(255,255,255,.09); }
+  .stu-ava {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700;
+  }
+  .stu-info { flex: 1; }
+  .stu-name { font-size: .88rem; font-weight: 600; color: #fff; }
+  .stu-sub  { font-size: .74rem; color: var(--gris); margin-top: 1px; }
+  .stu-badge {
+    font-size: .7rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; white-space: nowrap;
+  }
+  .stu-badge.ok      { background: rgba(0,200,150,.15); color: var(--verde); }
+  .stu-badge.risk    { background: rgba(245,200,66,.15); color: var(--amarillo); }
+  .stu-badge.danger  { background: rgba(232,69,69,.15);  color: var(--rojo); }
+
+  .asist-btn-row {
+    display: flex; gap: 10px; padding: 0 16px 16px;
+  }
+  .btn-primary {
+    flex: 1; background: var(--verde); color: var(--azul);
+    border: none; border-radius: var(--radio-sm);
+    font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 700;
+    padding: 13px; cursor: pointer; transition: background .2s;
+    letter-spacing: .3px;
+  }
+  .btn-primary:hover { background: var(--verde-oscuro); }
+  .btn-outline {
+    flex: 1; background: none; color: var(--verde);
+    border: 1.5px solid var(--verde); border-radius: var(--radio-sm);
+    font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 600;
+    padding: 13px; cursor: pointer; transition: all .2s;
+  }
+
+  /* Registro de asistencia modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10,37,64,.85);
+    backdrop-filter: blur(6px); z-index: 200;
+    display: none; align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    width: 100%; background: #112240;
+    border-radius: 24px 24px 0 0; padding: 0 0 32px;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp .3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+  .modal-handle {
+    width: 36px; height: 4px; background: rgba(255,255,255,.15);
+    border-radius: 4px; margin: 12px auto 0;
+  }
+  .modal-title {
+    font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600;
+    padding: 16px 20px 6px; color: #fff;
+  }
+  .modal-sub { font-size: .8rem; color: var(--gris); padding: 0 20px 16px; }
+  .modal-body { padding: 0 20px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { font-size: .78rem; color: var(--gris); font-weight: 500; display: block; margin-bottom: 6px; }
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    width: 100%; background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+    color: #fff; font-family: 'DM Sans', sans-serif; font-size: .9rem;
+    padding: 11px 14px; outline: none;
+    transition: border-color .2s;
+  }
+  .form-group select:focus,
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--verde); }
+  .form-group select option { background: #0a2540; }
+  .form-group textarea { resize: none; min-height: 80px; }
+
+  .attend-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;
+  }
+  .attend-opt {
+    border: 1.5px solid rgba(255,255,255,.12); border-radius: 10px;
+    padding: 12px 8px; text-align: center; cursor: pointer; transition: all .2s;
+    background: rgba(255,255,255,.04);
+  }
+  .attend-opt .ico { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+  .attend-opt span { font-size: .72rem; color: var(--gris); font-weight: 500; }
+  .attend-opt.selected.p { border-color: var(--verde); background: rgba(0,200,150,.1); }
+  .attend-opt.selected.p span { color: var(--verde); }
+  .attend-opt.selected.t { border-color: var(--amarillo); background: rgba(245,200,66,.1); }
+  .attend-opt.selected.t span { color: var(--amarillo); }
+  .attend-opt.selected.a { border-color: var(--rojo); background: rgba(232,69,69,.1); }
+  .attend-opt.selected.a span { color: var(--rojo); }
+  .attend-opt.selected.e { border-color: var(--naranja); background: rgba(255,124,62,.1); }
+  .attend-opt.selected.e span { color: var(--naranja); }
+  .attend-opt.selected.r { border-color: #9b59b6; background: rgba(155,89,182,.1); }
+  .attend-opt.selected.r span { color: #9b59b6; }
+  .attend-opt.selected.v { border-color: #3498db; background: rgba(52,152,219,.1); }
+  .attend-opt.selected.v span { color: #3498db; }
+
+  /* ─── PANTALLA: RIESGO ─── */
+  .riesgo-hero {
+    background: linear-gradient(135deg, #1a0a2e, var(--azul-medio));
+    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .riesgo-hero h2 {
+    font-family: 'Fraunces', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
+  }
+  .riesgo-hero p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
+
+  .risk-cards { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .risk-card {
+    background: rgba(255,255,255,.05); border-radius: var(--radio);
+    border: 1px solid rgba(255,255,255,.08); padding: 16px;
+    cursor: pointer; transition: background .2s;
+  }
+  .risk-card:hover { background: rgba(255,255,255,.09); }
+  .risk-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .risk-ava {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 700;
+  }
+  .risk-name { font-size: .9rem; font-weight: 700; color: #fff; }
+  .risk-meta { font-size: .74rem; color: var(--gris); margin-top: 2px; }
+  .risk-score-wrap { margin-left: auto; text-align: right; }
+  .risk-score {
+    font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 700;
+  }
+  .risk-score.alto { color: var(--rojo); }
+  .risk-score.medio { color: var(--amarillo); }
+  .risk-score.bajo { color: var(--verde); }
+  .risk-score-label { font-size: .68rem; color: var(--gris); text-transform: uppercase; letter-spacing: .4px; }
+
+  .risk-factors { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .factor-tag {
+    font-size: .7rem; padding: 3px 10px; border-radius: 20px; font-weight: 600;
+    background: rgba(232,69,69,.12); color: var(--rojo);
+    border: 1px solid rgba(232,69,69,.2);
+  }
+  .factor-tag.eco { background: rgba(245,200,66,.12); color: var(--amarillo); border-color: rgba(245,200,66,.2); }
+  .factor-tag.soc { background: rgba(155,89,182,.12); color: #c39bd3; border-color: rgba(155,89,182,.2); }
+  .factor-tag.aca { background: rgba(52,152,219,.12); color: #85c1e9; border-color: rgba(52,152,219,.2); }
+
+  .risk-bar-wrap { margin-top: 6px; }
+  .risk-bar-bg {
+    height: 6px; background: rgba(255,255,255,.08); border-radius: 6px; overflow: hidden;
+  }
+  .risk-bar-fill { height: 100%; border-radius: 6px; transition: width .5s ease; }
+  .risk-bar-fill.alto { background: linear-gradient(90deg, var(--naranja), var(--rojo)); }
+  .risk-bar-fill.medio { background: linear-gradient(90deg, #f0c040, var(--amarillo)); }
+  .risk-bar-fill.bajo  { background: linear-gradient(90deg, #00e0a0, var(--verde)); }
+
+  .accion-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(0,200,150,.1); border: 1px solid rgba(0,200,150,.2);
+    color: var(--verde); border-radius: 8px; padding: 8px 14px;
+    font-size: .8rem; font-weight: 600; cursor: pointer; width: 100%;
+    justify-content: center; margin-top: 10px; transition: background .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .accion-btn:hover { background: rgba(0,200,150,.2); }
+
+  /* ─── PANTALLA: COMUNICACIONES ─── */
+  .comms-hero {
+    background: linear-gradient(135deg, var(--azul-medio), #0d3257);
+    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .comms-hero h2 {
+    font-family: 'Fraunces', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
+  }
+  .comms-hero p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
+
+  .quick-actions {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 16px;
+  }
+  .qa-card {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radio-sm); padding: 16px 12px; text-align: center;
+    cursor: pointer; transition: all .2s;
+  }
+  .qa-card:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+  .qa-card .qa-ico { font-size: 1.8rem; margin-bottom: 8px; }
+  .qa-card h4 { font-size: .82rem; color: #fff; font-weight: 600; }
+  .qa-card p  { font-size: .71rem; color: var(--gris); margin-top: 3px; line-height: 1.3; }
+
+  .msg-list { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .msg-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(255,255,255,.04); border-radius: var(--radio-sm);
+    border: 1px solid rgba(255,255,255,.07); padding: 12px;
+    cursor: pointer; transition: background .2s;
+  }
+  .msg-item:hover { background: rgba(255,255,255,.08); }
+  .msg-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--verde); flex-shrink: 0; margin-top: 5px;
+  }
+  .msg-dot.read { background: transparent; border: 1.5px solid var(--gris); }
+  .msg-info { flex: 1; }
+  .msg-who  { font-size: .83rem; font-weight: 600; color: #fff; }
+  .msg-text { font-size: .75rem; color: var(--gris); margin-top: 2px; line-height: 1.4; }
+  .msg-time { font-size: .68rem; color: var(--gris); white-space: nowrap; margin-left: 8px; }
+
+  /* ─── PANTALLA: RECURSOS ─── */
+  .rec-hero {
+    background: linear-gradient(135deg, #0d3257, var(--azul-medio));
+    padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+  .rec-hero h2 {
+    font-family: 'Fraunces', serif; font-size: 1.3rem; color: #fff; font-weight: 600;
+  }
+  .rec-hero p { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 3px; }
+
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 16px; }
+  .rec-card {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radio); padding: 16px 14px; cursor: pointer; transition: all .2s;
+  }
+  .rec-card:hover { background: rgba(255,255,255,.1); transform: translateY(-2px); }
+  .rec-ico { font-size: 1.8rem; margin-bottom: 8px; }
+  .rec-card h4 { font-size: .83rem; color: #fff; font-weight: 600; line-height: 1.3; }
+  .rec-card p  { font-size: .71rem; color: var(--gris); margin-top: 4px; line-height: 1.4; }
+  .rec-tag {
+    display: inline-block; font-size: .65rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px; margin-top: 8px;
+    background: rgba(0,200,150,.15); color: var(--verde);
+  }
+
+  .hotline-card {
+    margin: 0 16px 16px;
+    background: linear-gradient(135deg, rgba(232,69,69,.15), rgba(232,69,69,.05));
+    border: 1px solid rgba(232,69,69,.25); border-radius: var(--radio);
+    padding: 16px 18px; display: flex; align-items: center; gap: 14px;
+  }
+  .hotline-card .ico { font-size: 2rem; }
+  .hotline-card h4 { font-size: .9rem; font-weight: 700; color: #fff; }
+  .hotline-card p  { font-size: .75rem; color: var(--gris); margin-top: 2px; }
+  .hotline-card .num {
+    font-family: 'Fraunces', serif; font-size: 1.2rem;
+    color: var(--rojo); font-weight: 700; margin-top: 6px;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--verde); color: var(--azul);
+    font-size: .83rem; font-weight: 700; padding: 10px 22px;
+    border-radius: 30px; opacity: 0; z-index: 300; transition: all .3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ─── PROGRESS RING ─── */
+  .ring-wrap { display: flex; justify-content: center; padding: 16px 16px 4px; }
+  .ring-inner { position: relative; width: 120px; height: 120px; }
+  .ring-inner svg { transform: rotate(-90deg); }
+  .ring-val {
+    position: absolute; inset: 0; display: flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+  }
+  .ring-val .rv { font-size: 1.8rem; font-weight: 700; color: #fff; }
+  .ring-val .rl { font-size: .64rem; color: var(--gris); margin-top: 2px; }
+  .ring-labels {
+    display: flex; justify-content: center; gap: 18px; padding: 0 16px 14px;
+  }
+  .ring-lbl { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: var(--gris); }
+  .ring-lbl .dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="logo-big">Presenc<span>IA</span></div>
+  <p>Escolar · Colombia</p>
+  <div class="loader"></div>
+  <div class="brand">
+    Desarrollada por Vibras Positivas HM<br>Derechos de Autor Reservados · 2026
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Presenc<span>IA</span></div>
+    <div class="header-right">
+      <span class="badge-role" id="roleLabel">Docente</span>
+      <div class="avatar" id="userAvatar" onclick="toggleRole()">MD</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ── DASHBOARD ── -->
+    <section id="screen-home" class="screen active">
+      <div class="hero-dash">
+        <h2 id="welcomeMsg">Buenos días, Docente</h2>
+        <p id="courseInfo">Colegio San José · Grado 8° — Grupo A</p>
+        <div class="date-chip">
+          📅 <span id="currentDate"></span>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi" onclick="goTo('asistencia')">
+          <div class="kpi-val verde">87%</div>
+          <div class="kpi-label">Asistencia hoy</div>
+          <div class="kpi-trend down">3 ausentismos</div>
+        </div>
+        <div class="kpi" onclick="goTo('riesgo')">
+          <div class="kpi-val rojo">5</div>
+          <div class="kpi-label">Estudiantes en riesgo alto</div>
+          <div class="kpi-trend up">+2 esta semana</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-val amarillo">12</div>
+          <div class="kpi-label">Inasistencias injustificadas (mes)</div>
+          <div class="kpi-trend up">vs mes anterior</div>
+        </div>
+        <div class="kpi" onclick="goTo('comms')">
+          <div class="kpi-val naranja">3</div>
+          <div class="kpi-label">Mensajes sin respuesta</div>
+          <div class="kpi-trend">a padres de familia</div>
+        </div>
+      </div>
+
+      <!-- Gráfica asistencia semanal -->
+      <div class="section-title">Asistencia — semana actual</div>
+      <div class="mini-chart-wrap">
+        <div class="mini-chart">
+          <h4>% presencia por día (grado 8A)</h4>
+          <div class="bars">
+            <div class="bar-col"><div class="bar" style="height:88%" title="Lun 88%"></div><span class="bar-label">Lun</span></div>
+            <div class="bar-col"><div class="bar warn" style="height:76%" title="Mar 76%"></div><span class="bar-label">Mar</span></div>
+            <div class="bar-col"><div class="bar" style="height:91%" title="Mié 91%"></div><span class="bar-label">Mié</span></div>
+            <div class="bar-col"><div class="bar alert" style="height:68%" title="Jue 68%"></div><span class="bar-label">Jue</span></div>
+            <div class="bar-col"><div class="bar" style="height:87%" title="Vie 87%"></div><span class="bar-label">Vie</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas -->
+      <div class="section-title">Alertas activas <a onclick="goTo('riesgo')">Ver todas</a></div>
+      <div class="alert-list">
+        <div class="alert-card">
+          <div class="icon-circle">🚨</div>
+          <div>
+            <h4>Tomás Vargas · 8A</h4>
+            <p>5 inasistencias consecutivas sin justificación. Posible inicio de proceso de deserción.</p>
+            <span class="tag">Riesgo crítico</span>
+          </div>
+        </div>
+        <div class="alert-card warning">
+          <div class="icon-circle">⚠️</div>
+          <div>
+            <h4>Valentina Meza · 8A</h4>
+            <p>Reporta dificultades económicas en el hogar. Padres no han respondido en 7 días.</p>
+            <span class="tag">Seguimiento</span>
+          </div>
+        </div>
+        <div class="alert-card warning">
+          <div class="icon-circle">📞</div>
+          <div>
+            <h4>Comunicación pendiente</h4>
+            <p>3 padres de familia requieren contacto urgente por inasistencias reiteradas.</p>
+            <span class="tag">Acción requerida</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asistencia global circular -->
+      <div class="section-title">Tasa mensual del grado</div>
+      <div class="ring-wrap">
+        <div class="ring-inner">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--verde)" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="47" stroke-linecap="round"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--amarillo)" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="267" stroke-linecap="round"
+              style="transform-origin:center;transform:rotate(122deg)"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--rojo)" stroke-width="10"
+              stroke-dasharray="314" stroke-dashoffset="288" stroke-linecap="round"
+              style="transform-origin:center;transform:rotate(152deg)"/>
+          </svg>
+          <div class="ring-val">
+            <span class="rv">85%</span>
+            <span class="rl">asistencia</span>
+          </div>
+        </div>
+      </div>
+      <div class="ring-labels">
+        <span class="ring-lbl"><span class="dot" style="background:var(--verde)"></span>Presentes 85%</span>
+        <span class="ring-lbl"><span class="dot" style="background:var(--amarillo)"></span>Tardanza 7%</span>
+        <span class="ring-lbl"><span class="dot" style="background:var(--rojo)"></span>Ausentes 8%</span>
+      </div>
+    </section>
+
+    <!-- ── ASISTENCIA ── -->
+    <section id="screen-asistencia" class="screen">
+      <div class="asistencia-header">
+        <h2>Registro de Asistencia</h2>
+        <p id="asistDate">Cargando...</p>
+      </div>
+
+      <div class="filter-row">
+        <span class="chip active">Grado 8A</span>
+        <span class="chip">9B</span>
+        <span class="chip">10C</span>
+        <span class="chip">11A</span>
+        <span class="chip">11B</span>
+      </div>
+
+      <div class="student-list" id="studentList">
+        <!-- Generado por JS -->
+      </div>
+
+      <div class="asist-btn-row">
+        <button class="btn-primary" onclick="saveAttendance()">💾 Guardar registro</button>
+        <button class="btn-outline" onclick="openModal()">+ Novedad</button>
+      </div>
+    </section>
+
+    <!-- ── RIESGO ── -->
+    <section id="screen-riesgo" class="screen">
+      <div class="riesgo-hero">
+        <h2>Mapa de Riesgo</h2>
+        <p>Detección temprana · IA predictiva</p>
+      </div>
+
+      <div class="filter-row">
+        <span class="chip active">Todos</span>
+        <span class="chip">🔴 Alto</span>
+        <span class="chip">🟡 Medio</span>
+        <span class="chip">🟢 Bajo</span>
+      </div>
+
+      <div class="risk-cards" id="riskCards">
+        <!-- generado por JS -->
+      </div>
+    </section>
+
+    <!-- ── COMUNICACIONES ── -->
+    <section id="screen-comms" class="screen">
+      <div class="comms-hero">
+        <h2>Comunicaciones</h2>
+        <p>Padres · Directivos · Orientadores</p>
+      </div>
+
+      <div class="quick-actions">
+        <div class="qa-card" onclick="showToast('📲 Abriendo WhatsApp...')">
+          <div class="qa-ico">📲</div>
+          <h4>WhatsApp masivo</h4>
+          <p>Notificar ausencias a padres</p>
+        </div>
+        <div class="qa-card" onclick="openModal()">
+          <div class="qa-ico">📝</div>
+          <h4>Nueva citación</h4>
+          <p>Citar padre de familia</p>
+        </div>
+        <div class="qa-card" onclick="showToast('📋 Informe generado')">
+          <div class="qa-ico">📋</div>
+          <h4>Informe mensual</h4>
+          <p>Generar y compartir PDF</p>
+        </div>
+        <div class="qa-card" onclick="showToast('🏫 Reporte enviado a coordinación')">
+          <div class="qa-ico">🏫</div>
+          <h4>Escalar caso</h4>
+          <p>Enviar a orientación</p>
+        </div>
+      </div>
+
+      <div class="section-title">Mensajes recientes</div>
+      <div class="msg-list">
+        <div class="msg-item">
+          <div class="msg-dot"></div>
+          <div class="msg-info">
+            <div class="msg-who">Madre de Tomás Vargas</div>
+            <div class="msg-text">El niño estuvo enfermo esta semana, mañana llevo la excusa médica...</div>
+          </div>
+          <div class="msg-time">Hace 2h</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-dot"></div>
+          <div class="msg-info">
+            <div class="msg-who">Coordinadora académica</div>
+            <div class="msg-text">Por favor reportar los casos críticos del 8A antes del viernes...</div>
+          </div>
+          <div class="msg-time">Hace 5h</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-dot read"></div>
+          <div class="msg-info">
+            <div class="msg-who">Psicoorientadora</div>
+            <div class="msg-text">Valentina Meza tiene cita programada para el jueves a las 10am.</div>
+          </div>
+          <div class="msg-time">Ayer</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-dot read"></div>
+          <div class="msg-info">
+            <div class="msg-who">Padre de Juan Pérez</div>
+            <div class="msg-text">Muchas gracias por el seguimiento, ya estamos trabajando en casa...</div>
+          </div>
+          <div class="msg-time">Lun</div>
+        </div>
+        <div class="msg-item">
+          <div class="msg-dot"></div>
+          <div class="msg-info">
+            <div class="msg-who">ICBF — Alerta sistémica</div>
+            <div class="msg-text">Recuerda: 3 o más inasistencias consecutivas sin justificación activa protocolo...</div>
+          </div>
+          <div class="msg-time">Dom</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RECURSOS ── -->
+    <section id="screen-recursos" class="screen">
+      <div class="rec-hero">
+        <h2>Recursos y Apoyo</h2>
+        <p>Guías · Protocolos · Líneas de ayuda</p>
+      </div>
+
+      <!-- Línea emergencia -->
+      <div class="hotline-card">
+        <div class="ico">🆘</div>
+        <div>
+          <h4>Línea 106 — Bienestar familiar</h4>
+          <p>ICBF · Atención a niños en vulnerabilidad</p>
+          <div class="num">📞 106</div>
+        </div>
+      </div>
+
+      <div class="rec-grid">
+        <div class="rec-card" onclick="showToast('📄 Abriendo protocolo...')">
+          <div class="rec-ico">📄</div>
+          <h4>Protocolo de inasistencia</h4>
+          <p>Guía paso a paso según MEN</p>
+          <span class="rec-tag">MEN 2024</span>
+        </div>
+        <div class="rec-card" onclick="showToast('📊 Cargando ruta...')">
+          <div class="rec-ico">🗺️</div>
+          <h4>Ruta de atención integral</h4>
+          <p>Deserción y vulnerabilidad</p>
+          <span class="rec-tag">RIA</span>
+        </div>
+        <div class="rec-card" onclick="showToast('🎓 Abriendo módulo...')">
+          <div class="rec-ico">🎓</div>
+          <h4>Formación docente</h4>
+          <p>Estrategias de retención escolar</p>
+          <span class="rec-tag">Gratis</span>
+        </div>
+        <div class="rec-card" onclick="showToast('🤝 Conectando...')">
+          <div class="rec-ico">🤝</div>
+          <h4>Apoyo psicosocial</h4>
+          <p>Orientación para familias en crisis</p>
+          <span class="rec-tag">Disponible</span>
+        </div>
+        <div class="rec-card" onclick="showToast('📱 Abriendo...')">
+          <div class="rec-ico">📱</div>
+          <h4>WhatsApp ICBF</h4>
+          <p>Reporte ágil de casos críticos</p>
+          <span class="rec-tag">Directo</span>
+        </div>
+        <div class="rec-card" onclick="showToast('📊 Descargando...')">
+          <div class="rec-ico">📊</div>
+          <h4>Plantilla de informe</h4>
+          <p>Para comités de permanencia</p>
+          <span class="rec-tag">Word · PDF</span>
+        </div>
+      </div>
+
+      <div class="section-title">Marco legal Colombia</div>
+      <div class="alert-list" style="padding-bottom:24px">
+        <div class="alert-card info">
+          <div class="icon-circle">⚖️</div>
+          <div>
+            <h4>Ley 115 de 1994</h4>
+            <p>Ley General de Educación — derecho a la permanencia y gratuidad educativa.</p>
+          </div>
+        </div>
+        <div class="alert-card info">
+          <div class="icon-circle">🛡️</div>
+          <div>
+            <h4>Ley 1098 de 2006</h4>
+            <p>Código de Infancia y Adolescencia — obligación del Estado, familia y sociedad de garantizar la educación.</p>
+          </div>
+        </div>
+        <div class="alert-card info">
+          <div class="icon-circle">👁️</div>
+          <div>
+            <h4>Ley 1581 de 2012 — Habeas Data</h4>
+            <p>Los datos de estudiantes y familias son confidenciales. Solo personal autorizado puede visualizar información sensible.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="goTo('home')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Inicio
+      <div class="nav-pip"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('asistencia')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      Asistencia
+      <div class="nav-pip"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('riesgo')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      Riesgo
+      <div class="nav-pip"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('comms')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+      Mensajes
+      <div class="nav-pip"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('recursos')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      Recursos
+      <div class="nav-pip"></div>
+    </button>
+  </nav>
+</div>
+
+<!-- MODAL: Novedad / Citación -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-sheet" onclick="e=>e.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Registrar novedad</div>
+    <div class="modal-sub">Complete la información del caso</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Estudiante</label>
+        <select>
+          <option>Tomás Vargas Ríos</option>
+          <option>Valentina Meza García</option>
+          <option>Juan Pérez López</option>
+          <option>Sofía Torres Herrera</option>
+          <option>Andrés Rojas Medina</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de novedad</label>
+        <select>
+          <option>Inasistencia injustificada</option>
+          <option>Inasistencia justificada</option>
+          <option>Riesgo de deserción</option>
+          <option>Problema familiar</option>
+          <option>Dificultad económica</option>
+          <option>Problema de convivencia</option>
+          <option>Acoso escolar</option>
+          <option>Trabajo infantil detectado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Observaciones (Habeas Data: información confidencial)</label>
+        <textarea placeholder="Describa la situación del estudiante..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Acción tomada</label>
+        <select>
+          <option>Notificar a padres por WhatsApp</option>
+          <option>Citar a padres de familia</option>
+          <option>Remitir a orientación escolar</option>
+          <option>Escalar a coordinación</option>
+          <option>Reportar al ICBF</option>
+          <option>Solo registrar</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="width:100%;margin-top:6px;margin-bottom:8px" onclick="submitNovedad()">Registrar y notificar</button>
+      <button class="btn-outline" style="width:100%;margin-bottom:4px" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── ESTUDIANTES ───
+const students = [
+  { name:'Tomás Vargas Ríos',    grade:'8A', color:'#e84545', init:'TV', status:'danger', ausencias:5 },
+  { name:'Valentina Meza García',grade:'8A', color:'#f5c842', init:'VM', status:'risk',   ausencias:3 },
+  { name:'Juan Pérez López',     grade:'8A', color:'#00c896', init:'JP', status:'ok',     ausencias:0 },
+  { name:'Sofía Torres Herrera', grade:'8A', color:'#3498db', init:'ST', status:'ok',     ausencias:1 },
+  { name:'Andrés Rojas Medina',  grade:'8A', color:'#9b59b6', init:'AR', status:'risk',   ausencias:2 },
+  { name:'Laura Castillo Vega',  grade:'8A', color:'#ff7c3e', init:'LC', status:'danger', ausencias:4 },
+  { name:'Miguel Ángel Ruiz',    grade:'8A', color:'#1abc9c', init:'MR', status:'ok',     ausencias:0 },
+  { name:'Diana Morales Cano',   grade:'8A', color:'#e67e22', init:'DM', status:'ok',     ausencias:1 },
+];
+
+const riskData = [
+  { name:'Tomás Vargas', grade:'8A', score:88, level:'alto',
+    factors:[{l:'Ausentismo',t:'aca'},{l:'Económico',t:'eco'},{l:'Familiar',t:'soc'}] },
+  { name:'Laura Castillo', grade:'8A', score:81, level:'alto',
+    factors:[{l:'Trabajo infantil',t:'eco'},{l:'Desmotivación',t:'aca'}] },
+  { name:'Valentina Meza', grade:'8A', score:65, level:'medio',
+    factors:[{l:'Bajo rendimiento',t:'aca'},{l:'Padres sin contacto',t:'soc'}] },
+  { name:'Andrés Rojas', grade:'8A', score:58, level:'medio',
+    factors:[{l:'Conflicto hogar',t:'soc'},{l:'Ausentismo tardanza',t:'aca'}] },
+  { name:'Carlos Jiménez', grade:'9B', score:41, level:'medio',
+    factors:[{l:'Zona rural lejana',t:'eco'}] },
+  { name:'Sara Londoño', grade:'10C', score:18, level:'bajo',
+    factors:[{l:'Rendimiento normal',t:'aca'}] },
+];
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').style.opacity = '0';
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+    }, 500);
+  }, 1800);
+
+  setDate();
+  renderStudents();
+  renderRisks();
+});
+
+function setDate() {
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  const str = now.toLocaleDateString('es-CO', opts);
+  const cap = str.charAt(0).toUpperCase() + str.slice(1);
+  document.getElementById('currentDate').textContent = cap;
+  document.getElementById('asistDate').textContent = cap + ' · Clase activa';
+
+  const h = now.getHours();
+  let greet = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
+  document.getElementById('welcomeMsg').textContent = greet + ', Docente';
+}
+
+// ─── NAV ───
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  const idx = ['home','asistencia','riesgo','comms','recursos'].indexOf(screen);
+  if (idx >= 0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ─── STUDENTS ───
+const attendState = {};
+function renderStudents() {
+  const list = document.getElementById('studentList');
+  list.innerHTML = students.map((s, i) => {
+    attendState[i] = s.status === 'ok' ? 'P' : s.status === 'risk' ? 'T' : 'A';
+    const badgeClass = s.status === 'ok' ? 'ok' : s.status === 'risk' ? 'risk' : 'danger';
+    const badgeText = s.status === 'ok' ? '✓ Presente' : s.status === 'risk' ? '⚠ Tardanza' : '✗ Ausente';
+    return `<div class="student-card" onclick="cycleAttend(${i})">
+      <div class="stu-ava" style="background:${s.color}22;color:${s.color}">${s.init}</div>
+      <div class="stu-info">
+        <div class="stu-name">${s.name}</div>
+        <div class="stu-sub">Grado ${s.grade} · ${s.ausencias} ausencia(s) este mes</div>
+      </div>
+      <span class="stu-badge ${badgeClass}" id="badge-${i}">${badgeText}</span>
+    </div>`;
+  }).join('');
+}
+
+function cycleAttend(i) {
+  const cycle = ['P','T','A','J'];
+  const labels = { P:'✓ Presente', T:'⚠ Tardanza', A:'✗ Ausente', J:'📄 Justificado' };
+  const classes = { P:'ok', T:'risk', A:'danger', J:'ok' };
+  const cur = attendState[i];
+  const next = cycle[(cycle.indexOf(cur)+1) % cycle.length];
+  attendState[i] = next;
+  const badge = document.getElementById('badge-'+i);
+  badge.className = 'stu-badge ' + classes[next];
+  badge.textContent = labels[next];
+}
+
+function saveAttendance() {
+  showToast('✅ Asistencia guardada correctamente');
+}
+
+// ─── RISKS ───
+function renderRisks() {
+  const cont = document.getElementById('riskCards');
+  cont.innerHTML = riskData.map(r => {
+    const factors = r.factors.map(f =>
+      `<span class="factor-tag ${f.t}">${f.l}</span>`).join('');
+    return `<div class="risk-card">
+      <div class="risk-card-top">
+        <div class="risk-ava" style="background:rgba(${r.level==='alto'?'232,69,69':r.level==='medio'?'245,200,66':'0,200,150'},.15);color:var(--${r.level==='alto'?'rojo':r.level==='medio'?'amarillo':'verde'})">
+          ${r.name.split(' ').map(x=>x[0]).join('').slice(0,2)}
+        </div>
+        <div>
+          <div class="risk-name">${r.name}</div>
+          <div class="risk-meta">Grado ${r.grade}</div>
+        </div>
+        <div class="risk-score-wrap">
+          <div class="risk-score ${r.level}">${r.score}</div>
+          <div class="risk-score-label">riesgo</div>
+        </div>
+      </div>
+      <div class="risk-factors">${factors}</div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-bg">
+          <div class="risk-bar-fill ${r.level}" style="width:${r.score}%"></div>
+        </div>
+      </div>
+      <button class="accion-btn" onclick="showToast('📋 Acción registrada para ${r.name}')">
+        📋 Registrar intervención
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ─── MODAL ───
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+function submitNovedad() {
+  closeModal();
+  showToast('✅ Novedad registrada y notificación enviada');
+}
+
+// ─── TOAST ───
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── ROLE TOGGLE ───
+const roles = [
+  { label:'Docente', init:'MD', greet:'Docente' },
+  { label:'Director', init:'DC', greet:'Director(a)' },
+  { label:'Orientador', init:'OR', greet:'Orientador(a)' },
+  { label:'Admin', init:'AD', greet:'Administrador(a)' },
+];
+let roleIdx = 0;
+function toggleRole() {
+  roleIdx = (roleIdx + 1) % roles.length;
+  const r = roles[roleIdx];
+  document.getElementById('roleLabel').textContent = r.label;
+  document.getElementById('userAvatar').textContent = r.init;
+  const h = new Date().getHours();
+  let greet = h < 12 ? 'Buenos días' : h < 18 ? 'Buenas tardes' : 'Buenas noches';
+  document.getElementById('welcomeMsg').textContent = `${greet}, ${r.greet}`;
+  showToast(`Modo: ${r.label}`);
+}
+
+// ─── CHIPS ───
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', function() {
+    this.closest('.filter-row').querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ─── PWA SERVICE WORKER ───
+if ('serviceWorker' in navigator) {
+  const sw = `
+    const CACHE = 'presencia-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([sw], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(blob));
+}
+</script>
+</body>
+</html>
